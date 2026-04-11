@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-04-11 - Task: T010 实现上下文管理器与五层压缩管道
+
+### What was done:
+- 实现 ContextManager 类，管理 LLM 上下文窗口
+- 实现 CircuitBreaker 熔断器，保护系统免受连续压缩失败影响
+- 实现 applyToolResultBudget() 限制工具结果大小
+- 实现 snipCompactIfNeeded() 丢弃旧消息以适应上下文预算
+- 实现 microCompact() 清除旧工具输出，截断大型工具结果
+- 实现 applyCollapsesIfNeeded() 坍缩连续的 tool_result 消息序列
+- 实现 autoCompact() 自动压缩，含熔断器保护
+- 实现 applyContextPipeline() 串联五层压缩管道
+- 实现 createContextManager 工厂函数
+- 更新 agent/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/agent/context-manager.test.ts 单元测试
+- 测试覆盖：熔断器状态管理、工具结果预算、Token 估算、各层压缩逻辑、完整管道测试
+- 运行 `npx vitest run tests/agent/context-manager.test.ts` 全部 23 个测试通过
+
+### Notes:
+- 五层压缩按顺序执行：microCompact → applyCollapsesIfNeeded → autoCompact → snipCompactIfNeeded
+- autoCompact 在上下文超过阈值时调用外部压缩函数，失败时回退到 snipCompact
+- 熔断器在连续 3 次失败后阻止 autoCompact 执行，60 秒后自动恢复
+- Token 估算使用字符数除以 4 的简单算法，生产环境可能需要更精确的 tokenizer
+
+---
+
 ## 2026-04-11 - Task: T009 实现 Agent 上下文与依赖注入
 
 ### What was done:

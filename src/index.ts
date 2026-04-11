@@ -7,7 +7,8 @@ export type {
   Message,
   ContentBlock,
   TestDepsOptions,
-  CreateAgentContextOptions
+  CreateAgentContextOptions,
+  ContextManagerConfig
 } from './agent/index.js'
 export { 
   productionDeps, 
@@ -20,7 +21,11 @@ export {
   addMessage,
   getMessages,
   abort,
-  isAborted
+  isAborted,
+  ContextManager,
+  CircuitBreaker,
+  createContextManager,
+  DEFAULT_CONTEXT_CONFIG
 } from './agent/index.js'
 export type { Tool, ToolResult } from './tools/index.js'
 export { 

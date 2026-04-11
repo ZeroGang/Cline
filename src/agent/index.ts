@@ -17,3 +17,10 @@ export {
   isAborted 
 } from './context.js'
 export type { CreateAgentContextOptions } from './context.js'
+export { 
+  ContextManager, 
+  CircuitBreaker, 
+  createContextManager,
+  DEFAULT_CONTEXT_CONFIG
+} from './context-manager.js'
+export type { ContextManagerConfig } from './context-manager.js'

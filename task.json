@@ -150,7 +150,7 @@
       "description": "实现 ContextManager 和 CompactService，包含五层渐进式压缩：工具结果预算 → Snip → Microcompact → Context Collapse → AutoCompact，含熔断器保护",
       "architecture_ref": "§16 上下文预算模式",
       "depends_on": ["T009"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "applyToolResultBudget() 限制工具结果大小",
         "snipCompactIfNeeded() 丢弃旧消息",
