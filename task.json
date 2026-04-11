@@ -185,7 +185,7 @@
       "description": "实现 AgentInstance 类，封装 agentLoop，提供 execute/interrupt/getMetrics/dispose 方法，管理 Agent 生命周期状态",
       "architecture_ref": "§9.1 Agent 实例设计",
       "depends_on": ["T011"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "AgentInstance 状态管理（idle/busy/error）",
         "execute() 返回 AsyncGenerator<AgentEvent>",

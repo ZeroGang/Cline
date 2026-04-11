@@ -41,3 +41,4 @@ export {
   createAgentLoopConfig
 } from './loop.js'
 export type { AgentLoopState, AgentLoopConfig } from './loop.js'
+export { AgentInstanceImpl, createAgentInstance } from './instance.js'

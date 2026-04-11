@@ -37,7 +37,9 @@ export {
   shouldTerminate,
   createSyntheticAbortResult,
   extractToolUseBlocks,
-  createAgentLoopConfig
+  createAgentLoopConfig,
+  AgentInstanceImpl,
+  createAgentInstance
 } from './agent/index.js'
 export type { Tool, ToolResult } from './tools/index.js'
 export { 
