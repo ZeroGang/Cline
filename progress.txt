@@ -2,6 +2,27 @@
 
 ---
 
+## 2026-04-11 - Task: T007 实现权限模式定义与规则引擎
+
+### What was done:
+- 定义 PermissionMode 四种模式：default/plan/auto/bypass
+- 实现 PermissionRule 接口（type/tool/pattern/path/priority）
+- 实现 RuleEngine 规则匹配引擎，支持 addRule/match/checkPermission
+- 实现 DEFAULT_RULES 默认规则集
+- 更新 permissions/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/permissions/engine.test.ts 单元测试
+- 测试覆盖：规则添加/删除/匹配、优先级排序、模式匹配、路径匹配
+- 运行 `npx vitest run tests/permissions/engine.test.ts` 全部 15 个测试通过
+
+### Notes:
+- 规则按优先级从高到低匹配，第一个匹配的规则决定决策
+- 无匹配规则时返回 'ask'，需要用户确认
+- DEFAULT_RULES 为内置工具提供合理的默认权限配置
+
+---
+
 ## 2026-04-11 - Task: T006 实现写入工具集
 
 ### What was done:

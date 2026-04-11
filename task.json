@@ -102,7 +102,7 @@
       "description": "定义 PermissionMode 类型（default/plan/auto/bypass），实现 PermissionRule 接口和 RuleEngine 规则匹配引擎，实现权限决策流程",
       "architecture_ref": "§13 权限中间件",
       "depends_on": ["T002"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "PermissionMode 四种模式定义",
         "PermissionRule 接口（type/tool/pattern/path/priority）",
