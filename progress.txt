@@ -2,6 +2,34 @@
 
 ---
 
+## 2026-04-11 - Task: T013 实现简单任务队列
+
+### What was done:
+- 实现 TaskQueue 类，支持任务队列管理
+- 实现 enqueue() 方法，添加任务到队列并按优先级排序
+- 实现 dequeue() 方法，从队列取出任务并标记为 running
+- 实现 complete() 和 fail() 方法，标记任务完成或失败
+- 实现 retry() 方法，重试失败的任务
+- 实现 cancel() 方法，取消待处理或运行中的任务
+- 实现 getPending/getRunning/getCompleted 方法，查询不同状态的任务
+- 实现 getTask/getTaskStatus 方法，查询单个任务
+- 实现 createTask 工厂函数，简化任务创建
+- 更新 scheduler/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/scheduler/queue.test.ts 单元测试
+- 测试覆盖：入队、出队、状态流转、优先级排序、重试、取消、查询
+- 运行 `npx vitest run tests/scheduler/queue.test.ts` 全部 27 个测试通过
+
+### Notes:
+- 任务按优先级（high > normal > low）和创建时间排序
+- 支持最大并发数限制，超过限制时 dequeue 返回 null
+- 任务状态流转：pending → running → completed/failed/cancelled
+- 重试次数超过 maxRetries 时抛出错误
+- 已包含优先级排序功能，为后续 T018 任务优先级队列打下基础
+
+---
+
 ## 2026-04-11 - Task: T012 实现 AgentInstance 实例封装
 
 ### What was done:

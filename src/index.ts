@@ -1,4 +1,5 @@
 export type { SchedulerConfig, Task, AgentMetrics, AgentEvent, SchedulerEvent, LoadBalanceStrategy } from './scheduler/index.js'
+export { TaskQueue, createTaskQueue, createTask } from './scheduler/index.js'
 export type { 
   AgentContext, 
   QueryDeps, 

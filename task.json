@@ -202,7 +202,7 @@
       "description": "实现 Task 接口定义和 TaskQueue 类，支持基本入队/出队/状态查询，暂不含优先级和依赖管理",
       "architecture_ref": "§6.2 任务队列设计",
       "depends_on": ["T002"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Task 接口定义完整（id/type/priority/status/prompt/dependencies/retry 等）",
         "TaskQueue 支持 enqueue/dequeue/getPending",
