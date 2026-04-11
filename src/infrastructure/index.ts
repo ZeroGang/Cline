@@ -1,5 +1,6 @@
 export type { AppState, DeepImmutable, Subscriber, Selector, Unsubscribe } from './state/index.js'
 export { DEFAULT_APP_STATE, Store, createStore } from './state/index.js'
 export type { LogEntry, LogQuery } from './logging/index.js'
+export { Logger, LogStore, LogAggregator, createLogger } from './logging/index.js'
 export type { Counter, Gauge, Histogram, Metrics, TelemetryEvent } from './metrics/index.js'
 export type { AlertRule, Alert } from './monitoring/index.js'

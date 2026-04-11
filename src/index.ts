@@ -10,7 +10,7 @@ export type { HookConfig, HookResult } from './hooks/index.js'
 export type { MCPServerConfig, MCPTool, MCPServer } from './mcp/index.js'
 export type { Plugin } from './plugins/index.js'
 export type { AppState, LogEntry, LogQuery, Counter, Gauge, Histogram, Metrics, TelemetryEvent, AlertRule, Alert, DeepImmutable, Subscriber, Selector, Unsubscribe } from './infrastructure/index.js'
-export { DEFAULT_APP_STATE, Store, createStore } from './infrastructure/index.js'
+export { DEFAULT_APP_STATE, Store, createStore, Logger, LogStore, LogAggregator, createLogger } from './infrastructure/index.js'
 export type {
   AgentId,
   TaskId,

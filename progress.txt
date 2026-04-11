@@ -2,6 +2,28 @@
 
 ---
 
+## 2026-04-11 - Task: T003 实现日志系统基础设施
+
+### What was done:
+- 实现 Logger 类，支持 debug/info/warn/error 四个日志级别
+- 实现 LogEntry 接口，包含 level/message/source/timestamp/data 字段
+- 实现 LogStore 内存存储，支持 maxSize 大小限制
+- 实现 LogAggregator 聚合查询，支持按 level/source/time 范围查询
+- 实现 createLogger 工厂函数
+- 更新 infrastructure/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/logging/logger.test.ts 单元测试
+- 测试覆盖：Logger 各级别日志、带数据日志、LogStore 存储/查询/限制、LogAggregator 聚合统计
+- 运行 `npx vitest run tests/logging/logger.test.ts` 全部 19 个测试通过
+
+### Notes:
+- Logger 同时输出到控制台和 LogStore
+- LogStore 使用环形缓冲区，超过 maxSize 时丢弃最旧条目
+- LogAggregator 提供 countByLevel/countBySource 统计方法
+
+---
+
 ## 2026-04-11 - Task: T002 实现响应式状态管理 Store
 
 ### What was done:

@@ -40,7 +40,7 @@
       "description": "实现 Logger 类（debug/info/warn/error）、LogEntry 接口、LogStore 持久化存储、LogAggregator 聚合查询",
       "architecture_ref": "§18 日志系统",
       "depends_on": ["T002"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Logger 支持结构化日志输出",
         "LogStore 支持内存存储和大小限制",
