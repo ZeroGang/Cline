@@ -168,7 +168,7 @@
       "description": "实现 agentLoop AsyncGenerator 函数，包含流式 LLM 调用、StreamingToolExecutor 流式工具执行、扣留机制、终止条件检查、AbortController 中断处理",
       "architecture_ref": "§4.1 Agent 循环模式",
       "depends_on": ["T009", "T010"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "agentLoop() 返回 AsyncGenerator<AgentEvent>",
         "StreamingToolExecutor 支持并发/串行执行",

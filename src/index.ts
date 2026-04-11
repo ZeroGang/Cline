@@ -8,7 +8,12 @@ export type {
   ContentBlock,
   TestDepsOptions,
   CreateAgentContextOptions,
-  ContextManagerConfig
+  ContextManagerConfig,
+  ToolUseBlock,
+  ToolExecutionResult,
+  StreamingExecutorConfig,
+  AgentLoopState,
+  AgentLoopConfig
 } from './agent/index.js'
 export { 
   productionDeps, 
@@ -25,7 +30,14 @@ export {
   ContextManager,
   CircuitBreaker,
   createContextManager,
-  DEFAULT_CONTEXT_CONFIG
+  DEFAULT_CONTEXT_CONFIG,
+  StreamingToolExecutor,
+  createStreamingExecutor,
+  agentLoop,
+  shouldTerminate,
+  createSyntheticAbortResult,
+  extractToolUseBlocks,
+  createAgentLoopConfig
 } from './agent/index.js'
 export type { Tool, ToolResult } from './tools/index.js'
 export { 

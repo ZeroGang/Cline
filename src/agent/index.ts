@@ -24,3 +24,20 @@ export {
   DEFAULT_CONTEXT_CONFIG
 } from './context-manager.js'
 export type { ContextManagerConfig } from './context-manager.js'
+export { 
+  StreamingToolExecutor, 
+  createStreamingExecutor 
+} from './streaming-executor.js'
+export type { 
+  ToolUseBlock, 
+  ToolExecutionResult, 
+  StreamingExecutorConfig 
+} from './streaming-executor.js'
+export { 
+  agentLoop, 
+  shouldTerminate, 
+  createSyntheticAbortResult, 
+  extractToolUseBlocks,
+  createAgentLoopConfig
+} from './loop.js'
+export type { AgentLoopState, AgentLoopConfig } from './loop.js'

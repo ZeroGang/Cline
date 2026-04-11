@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-04-11 - Task: T011 实现 Agent 循环核心
+
+### What was done:
+- 实现 agentLoop AsyncGenerator 函数，管理 Agent 的思考循环
+- 实现 StreamingToolExecutor 类，支持并发/串行工具执行
+- 实现扣留机制（detention），处理 max_output_tokens 错误
+- 实现 AbortController 中断处理，生成合成 tool_result
+- 实现 shouldTerminate() 终止条件检查
+- 实现 extractToolUseBlocks() 和 createSyntheticAbortResult() 辅助函数
+- 实现 createAgentLoopConfig() 配置工厂函数
+- 更新 agent/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/agent/loop.test.ts 单元测试
+- 测试覆盖：基本循环流程、工具执行、中断处理、扣留机制、终止条件、事件发射
+- 运行 `npx vitest run tests/agent/loop.test.ts` 全部 17 个测试通过
+
+### Notes:
+- agentLoop 使用 AsyncGenerator 实现流式事件发射
+- StreamingToolExecutor 管理工具执行的并发控制和超时处理
+- 扣留机制在遇到 max_output_tokens 错误时自动继续对话
+- 中断时为未完成的工具调用生成合成错误结果
+- 终止条件包括：用户中断、达到最大轮次、无工具调用的助手消息
+
+---
+
 ## 2026-04-11 - Task: T010 实现上下文管理器与五层压缩管道
 
 ### What was done:
