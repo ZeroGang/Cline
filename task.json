@@ -1,0 +1,657 @@
+{
+  "project": "CLine",
+  "description": "ClaudeCode 多实例调度器 - 基于 architecture.md 设计框架的开发任务",
+  "tasks": [
+    {
+      "id": "T001",
+      "phase": 1,
+      "title": "初始化项目结构与依赖配置",
+      "description": "创建 TypeScript + React 项目，配置 package.json、tsconfig.json、eslint、prettier，安装核心依赖（zod、anthropic-sdk 等），搭建 src/ 目录骨架",
+      "architecture_ref": "§23 技术选型, §24 项目结构",
+      "depends_on": [],
+      "status": "completed",
+      "acceptance_criteria": [
+        "package.json 包含所有核心依赖",
+        "tsconfig.json 配置严格模式",
+        "src/ 下创建 scheduler/ agent/ tools/ backend/ permissions/ sandbox/ hooks/ mcp/ plugins/ infrastructure/ ui/ 目录",
+        "npm run build 可通过"
+      ]
+    },
+    {
+      "id": "T002",
+      "phase": 1,
+      "title": "实现响应式状态管理 Store",
+      "description": "实现 Store<T> 泛型类，支持 getState/setState/subscribe，实现 DeepImmutable 类型约束，定义 AppState 全局状态接口",
+      "architecture_ref": "§5 状态管理",
+      "depends_on": ["T001"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Store<T> 类实现 getState/setState/subscribe",
+        "DeepImmutable<T> 类型约束生效",
+        "AppState 接口定义完整（scheduler/tasks/agents/logs/metrics/config/permissions）",
+        "useAppState 选择器 hook 实现",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T003",
+      "phase": 1,
+      "title": "实现日志系统基础设施",
+      "description": "实现 Logger 类（debug/info/warn/error）、LogEntry 接口、LogStore 持久化存储、LogAggregator 聚合查询",
+      "architecture_ref": "§18 日志系统",
+      "depends_on": ["T002"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Logger 支持结构化日志输出",
+        "LogStore 支持内存存储和大小限制",
+        "LogAggregator 支持 level/source/time 范围查询",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T004",
+      "phase": 1,
+      "title": "实现工具接口与注册表",
+      "description": "定义 Tool<Input, Output> 接口（name/description/inputSchema/isEnabled/isConcurrencySafe/isReadOnly/isDestructive/checkPermissions/execute），实现 ToolRegistry 注册/查询/过滤",
+      "architecture_ref": "§10 工具注册表",
+      "depends_on": ["T002"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Tool<I,O> 接口定义完整",
+        "ToolRegistry 支持 register/get/getAll/filter",
+        "Zod schema 集成用于输入验证",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T005",
+      "phase": 1,
+      "title": "实现基础只读工具集",
+      "description": "实现 Read/Glob/Grep/WebFetch/WebSearch/AskUserQuestion 六个只读工具，每个工具包含完整的 inputSchema、权限声明和 execute 实现",
+      "architecture_ref": "§10.3 内置工具",
+      "depends_on": ["T004"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "6 个只读工具全部实现",
+        "每个工具的 isReadOnly() 返回 true",
+        "inputSchema 使用 Zod 定义",
+        "execute 方法返回 ToolResult",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T006",
+      "phase": 1,
+      "title": "实现写入工具集",
+      "description": "实现 Write/Edit 两个写入工具，包含文件路径安全检查和权限声明",
+      "architecture_ref": "§10.3 内置工具",
+      "depends_on": ["T004"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Write/Edit 工具实现",
+        "isReadOnly() 返回 false",
+        "isDestructive() 正确标记",
+        "路径安全检查（防止路径遍历）",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T007",
+      "phase": 1,
+      "title": "实现权限模式定义与规则引擎",
+      "description": "定义 PermissionMode 类型（default/plan/auto/bypass），实现 PermissionRule 接口和 RuleEngine 规则匹配引擎，实现权限决策流程",
+      "architecture_ref": "§13 权限中间件",
+      "depends_on": ["T002"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "PermissionMode 四种模式定义",
+        "PermissionRule 接口（type/tool/pattern/path/priority）",
+        "RuleEngine.match() 返回匹配规则",
+        "权限决策流程：规则匹配 → 模式检查 → 工具检查 → 用户确认",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T008",
+      "phase": 1,
+      "title": "实现 PermissionSystem 权限中间件",
+      "description": "实现 PermissionSystem 类，整合 RuleEngine 和 PermissionMode，提供 checkPermissions() 方法，支持会话级缓存",
+      "architecture_ref": "§13.1 权限决策流程",
+      "depends_on": ["T007"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "PermissionSystem 整合 RuleEngine",
+        "checkPermissions() 返回 allow/deny/ask",
+        "会话级缓存避免重复询问",
+        "Plan Mode 下只允许只读工具",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T009",
+      "phase": 1,
+      "title": "实现 Agent 上下文与依赖注入",
+      "description": "定义 AgentContext 接口（messages/abortController/tools/setAppState/readFileState/contentReplacementState/toolPermissionContext/mcpTools），实现 QueryDeps 依赖注入接口和生产/测试环境工厂",
+      "architecture_ref": "§9.2 Agent 上下文, §4.1.3 依赖注入",
+      "depends_on": ["T002", "T004", "T008"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "AgentContext 接口定义完整",
+        "QueryDeps 接口定义（callModel/autocompact/microcompact/uuid）",
+        "productionDeps() 工厂函数",
+        "testDeps() 工厂函数（支持 mock）",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T010",
+      "phase": 1,
+      "title": "实现上下文管理器与五层压缩管道",
+      "description": "实现 ContextManager 和 CompactService，包含五层渐进式压缩：工具结果预算 → Snip → Microcompact → Context Collapse → AutoCompact，含熔断器保护",
+      "architecture_ref": "§16 上下文预算模式",
+      "depends_on": ["T009"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "applyToolResultBudget() 限制工具结果大小",
+        "snipCompactIfNeeded() 丢弃旧消息",
+        "microCompact() 清除旧工具输出",
+        "applyCollapsesIfNeeded() 坍缩消息序列",
+        "autoCompact() 含熔断器保护",
+        "applyContextPipeline() 串联五层",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T011",
+      "phase": 1,
+      "title": "实现 Agent 循环核心",
+      "description": "实现 agentLoop AsyncGenerator 函数，包含流式 LLM 调用、StreamingToolExecutor 流式工具执行、扣留机制、终止条件检查、AbortController 中断处理",
+      "architecture_ref": "§4.1 Agent 循环模式",
+      "depends_on": ["T009", "T010"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "agentLoop() 返回 AsyncGenerator<AgentEvent>",
+        "StreamingToolExecutor 支持并发/串行执行",
+        "扣留机制处理 max_output_tokens 错误",
+        "AbortController 中断时生成合成 tool_result",
+        "shouldTerminate() 检查终止条件",
+        "单元测试覆盖（使用 testDeps mock）"
+      ]
+    },
+    {
+      "id": "T012",
+      "phase": 1,
+      "title": "实现 AgentInstance 实例封装",
+      "description": "实现 AgentInstance 类，封装 agentLoop，提供 execute/interrupt/getMetrics/dispose 方法，管理 Agent 生命周期状态",
+      "architecture_ref": "§9.1 Agent 实例设计",
+      "depends_on": ["T011"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "AgentInstance 状态管理（idle/busy/error）",
+        "execute() 返回 AsyncGenerator<AgentEvent>",
+        "interrupt() 通过 AbortController 中断",
+        "getMetrics() 返回 tokens/cost/toolCalls/turns",
+        "dispose() 清理资源",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T013",
+      "phase": 1,
+      "title": "实现简单任务队列",
+      "description": "实现 Task 接口定义和 TaskQueue 类，支持基本入队/出队/状态查询，暂不含优先级和依赖管理",
+      "architecture_ref": "§6.2 任务队列设计",
+      "depends_on": ["T002"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Task 接口定义完整（id/type/priority/status/prompt/dependencies/retry 等）",
+        "TaskQueue 支持 enqueue/dequeue/getPending",
+        "任务状态流转：pending → running → completed/failed",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T014",
+      "phase": 1,
+      "title": "实现单 Agent 调度器 MVP",
+      "description": "实现 Scheduler 类，整合 TaskQueue 和单个 AgentInstance，实现 submitTask/cancelTask/getTaskStatus，支持基本的任务分配和事件处理",
+      "architecture_ref": "§6.1 调度器架构",
+      "depends_on": ["T012", "T013"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Scheduler 整合 TaskQueue + AgentInstance",
+        "submitTask() 返回 TaskId",
+        "cancelTask() 中断 Agent 执行",
+        "handleAgentEvent() 更新 Store/Logger/Metrics",
+        "端到端测试：提交任务 → Agent 执行 → 返回结果"
+      ]
+    },
+    {
+      "id": "T015",
+      "phase": 1,
+      "title": "Phase 1 集成测试与 CLI 入口",
+      "description": "实现 CLI 入口程序，串联所有 Phase 1 组件，编写集成测试验证单 Agent 完整工作流",
+      "architecture_ref": "§25 Phase 1",
+      "depends_on": ["T014"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "CLI 入口可启动调度器",
+        "可通过命令行提交任务",
+        "集成测试：提交任务 → Agent 执行工具 → 返回结果",
+        "集成测试：中断正在执行的任务",
+        "集成测试：上下文压缩触发"
+      ]
+    },
+    {
+      "id": "T016",
+      "phase": 2,
+      "title": "实现 AgentPool 实例池",
+      "description": "实现 AgentPool 类，支持弹性伸缩（minAgents/maxAgents），提供 acquire/release 接口，管理 Agent 生命周期",
+      "architecture_ref": "§6.3 Agent 池设计",
+      "depends_on": ["T015"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "initialize() 预创建 minAgents 个实例",
+        "acquire() 返回可用 Agent 或 null",
+        "release() 归还或缩容",
+        "弹性伸缩：空闲时缩容到 minAgents",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T017",
+      "phase": 2,
+      "title": "实现 Backend 抽象层",
+      "description": "定义 AgentBackend 接口，实现 InProcessBackend 和 TmuxBackend，实现 BackendSelector 自动选择策略",
+      "architecture_ref": "§7 Backend 抽象层",
+      "depends_on": ["T016"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "AgentBackend 接口定义（isAvailable/spawn/sendMessage/terminate/getOutput/isActive）",
+        "InProcessBackend 实现完整",
+        "TmuxBackend 实现完整（tmux 会话管理）",
+        "BackendSelector 自动检测可用性并选择",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T018",
+      "phase": 2,
+      "title": "实现任务优先级队列",
+      "description": "扩展 TaskQueue 支持优先级排序，实现多优先级队列管理，高优先级任务优先调度",
+      "architecture_ref": "§6.2 任务队列设计",
+      "depends_on": ["T015"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "TaskQueue 支持按优先级排序",
+        "高优先级任务优先出队",
+        "优先级动态调整支持",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T019",
+      "phase": 2,
+      "title": "实现任务依赖管理",
+      "description": "扩展 TaskQueue 支持依赖图，实现等待队列和依赖满足后自动入队，实现 DependencyGraph",
+      "architecture_ref": "§6.2 任务队列设计",
+      "depends_on": ["T018"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "DependencyGraph 检测循环依赖",
+        "依赖未满足的任务进入等待队列",
+        "onTaskCompleted() 触发依赖检查",
+        "依赖满足后自动入队",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T020",
+      "phase": 2,
+      "title": "实现负载均衡策略",
+      "description": "实现 LoadBalanceStrategy 接口和三种策略：PriorityStrategy、FairShareStrategy、DependencyStrategy",
+      "architecture_ref": "§6.4 负载均衡策略",
+      "depends_on": ["T016", "T018"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "LoadBalanceStrategy 接口定义",
+        "PriorityStrategy 按优先级选择",
+        "FairShareStrategy 公平分配",
+        "DependencyStrategy 优先解锁依赖链",
+        "策略可配置切换",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T021",
+      "phase": 2,
+      "title": "实现多 Agent 协调器",
+      "description": "实现 Coordinator 类，支持任务分解、Agent 分配、邮箱系统通信、结果收集与合并",
+      "architecture_ref": "§4.2 多 Agent 委派模式",
+      "depends_on": ["T016", "T020"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Coordinator.coordinate() 分解并分配任务",
+        "AgentMailbox 实现 send/receive/broadcast",
+        "AgentMessage 类型定义完整",
+        "结果收集与合并",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T022",
+      "phase": 2,
+      "title": "升级 Scheduler 支持多 Agent 调度",
+      "description": "升级 Scheduler 整合 AgentPool、LoadBalancer、Coordinator，支持多 Agent 并行调度",
+      "architecture_ref": "§6.1 调度器架构",
+      "depends_on": ["T020", "T021"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Scheduler 整合 AgentPool + LoadBalancer + Coordinator",
+        "多 Agent 并行执行任务",
+        "负载均衡策略生效",
+        "任务依赖正确处理",
+        "集成测试覆盖"
+      ]
+    },
+    {
+      "id": "T023",
+      "phase": 2,
+      "title": "实现子 Agent 调度",
+      "description": "实现 AgentDefinition 类型定义、子 Agent 上下文隔离（createSubagentContext）、同步/异步执行模式、AbortController 级联中断",
+      "architecture_ref": "§12 子 Agent 调度",
+      "depends_on": ["T022"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "AgentDefinition 定义（agentType/tools/permissionMode/model/isolation/background/maxTurns）",
+        "createSubagentContext() 创建隔离上下文",
+        "createChildAbortController() 级联中断",
+        "同步执行：等待子 Agent 完成",
+        "异步执行：后台启动，返回 taskId",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T024",
+      "phase": 2,
+      "title": "Phase 2 集成测试",
+      "description": "编写多 Agent 调度集成测试，验证并行执行、负载均衡、依赖管理、子 Agent 调度",
+      "architecture_ref": "§25 Phase 2",
+      "depends_on": ["T023"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "多 Agent 并行执行集成测试通过",
+        "任务优先级调度集成测试通过",
+        "任务依赖管理集成测试通过",
+        "子 Agent 异步执行集成测试通过",
+        "Tmux Backend 集成测试通过"
+      ]
+    },
+    {
+      "id": "T025",
+      "phase": 3,
+      "title": "实现 Bash 安全链",
+      "description": "实现 BashTool 的纵深防御：AST 安全解析（tree-sitter-bash）、命令分类器（高风险/低风险模式）、用户交互审批、输出管理",
+      "architecture_ref": "§14 Bash 安全链",
+      "depends_on": ["T015"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "parseForSecurity() 使用 tree-sitter-bash 解析",
+        "ALLOWED_NODE_TYPES 白名单检查",
+        "classifyBashCommand() 返回 allow/deny/ask",
+        "HIGH_RISK_PATTERNS 和 LOW_RISK_PATTERNS 匹配",
+        "输出超过 maxResultSizeChars 时截断+持久化",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T026",
+      "phase": 3,
+      "title": "实现沙箱隔离",
+      "description": "实现 SandboxConfig 接口和 Sandbox 类，支持文件系统隔离（读写路径白名单）、网络隔离（主机黑白名单）、进程隔离",
+      "architecture_ref": "§15 沙箱隔离",
+      "depends_on": ["T025"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "SandboxConfig 接口定义完整",
+        "canRead/canWrite/canAccess/canExecute 检查方法",
+        "shouldUseSandbox() 判断是否需要沙箱",
+        "executeInSandbox() 在隔离环境中执行",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T027",
+      "phase": 3,
+      "title": "实现 Plan Mode",
+      "description": "实现 EnterPlanModeTool 和 ExitPlanModeTool，通过权限模式切换强制分离思考（只读）和行动（读写）阶段",
+      "architecture_ref": "§11 Plan Mode",
+      "depends_on": ["T008", "T005"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "EnterPlanModeTool 切换到 plan 模式",
+        "Plan Mode 下只允许只读工具",
+        "ExitPlanModeTool 需要用户审批",
+        "退出后恢复原有权限模式",
+        "Plan 文件路径管理",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T028",
+      "phase": 3,
+      "title": "实现 Hook 系统",
+      "description": "实现 HookType 定义（PreToolUse/PostToolUse/Stop/Notification/PreCommit）、HookConfig、HookExecutor，集成到工具执行流程",
+      "architecture_ref": "§20 Hook 系统",
+      "depends_on": ["T015"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "HookType 五种类型定义",
+        "HookConfig 接口（type/command/timeout/matchers）",
+        "executeHook() 执行外部脚本",
+        "HookResult 支持 proceed/modifiedInput/modifiedResult",
+        "executeToolWithHooks() 集成 Pre/Post Hook",
+        "Hook 执行失败不阻止主流程",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T029",
+      "phase": 3,
+      "title": "实现错误处理三层架构",
+      "description": "实现工具级错误隔离（ShellError/shortErrorStack）、查询级错误降级（getAssistantMessageFromError）、系统级熔断器（CircuitBreaker）",
+      "architecture_ref": "§8 错误处理与降级",
+      "depends_on": ["T015"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "ShellError 包含 stdout/stderr/code/interrupted",
+        "shortErrorStack() 限制堆栈帧数",
+        "getAssistantMessageFromError() 分类处理各类 API 错误",
+        "CircuitBreaker 实现 closed/open/half-open 状态机",
+        "工具错误作为 tool_result 返回，不抛异常",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T030",
+      "phase": 3,
+      "title": "Phase 3 集成测试",
+      "description": "编写安全与权限集成测试，验证 Bash 安全链、沙箱隔离、Plan Mode、Hook 系统、错误处理",
+      "architecture_ref": "§25 Phase 3",
+      "depends_on": ["T025", "T026", "T027", "T028", "T029"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Bash 安全链集成测试通过",
+        "沙箱隔离集成测试通过",
+        "Plan Mode 完整流程测试通过",
+        "Hook 拦截工具执行测试通过",
+        "熔断器触发和恢复测试通过"
+      ]
+    },
+    {
+      "id": "T031",
+      "phase": 4,
+      "title": "实现事件总线与实时状态追踪",
+      "description": "实现 EventEmitter<EventMap> 泛型类、SchedulerEvent/AgentEvent 类型定义、AgentMonitor 实时状态追踪",
+      "architecture_ref": "§17 监控系统",
+      "depends_on": ["T022"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "EventEmitter 支持 emit/on 泛型事件",
+        "SchedulerEvent 和 AgentEvent 类型完整",
+        "AgentMonitor 追踪 Agent 状态和指标",
+        "recentEvents 滑动窗口（最多 100 条）",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T032",
+      "phase": 4,
+      "title": "实现指标收集与遥测系统",
+      "description": "实现 Metrics 接口（Counter/Gauge/Histogram）、MetricsCollector、CostTracker、TelemetryClient、性能检查点",
+      "architecture_ref": "§19 遥测与性能分析",
+      "depends_on": ["T031"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Metrics 接口定义（tasks/agents/tokens/cost/queue 指标）",
+        "MetricsCollector 记录任务/Token/成本指标",
+        "CostTracker 追踪各模型成本",
+        "TelemetryClient 发送遥测事件",
+        "STARTUP_CHECKPOINTS 性能检查点",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T033",
+      "phase": 4,
+      "title": "实现告警系统",
+      "description": "实现 AlertRule 接口、AlertManager 告警检查引擎、默认告警规则（高错误率/成本阈值/Agent 卡住）",
+      "architecture_ref": "§17.4 告警规则",
+      "depends_on": ["T032"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "AlertRule 接口定义（name/condition/severity/channels）",
+        "AlertManager.check() 检查所有规则",
+        "DEFAULT_ALERT_RULES 三条默认规则",
+        "告警发送到配置的渠道",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T034",
+      "phase": 4,
+      "title": "实现监控 UI 层",
+      "description": "使用 React 实现监控 UI：Dashboard 主面板、TaskView 任务详情、AgentMonitor Agent 监控、LogViewer 日志查看、Settings 配置管理",
+      "architecture_ref": "§3.1 监控 UI 层",
+      "depends_on": ["T031", "T032", "T033"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Dashboard 展示任务/Agent/指标概览",
+        "TaskView 展示任务详情和执行日志",
+        "AgentMonitor 实时展示 Agent 状态",
+        "LogViewer 支持按 level/source/time 过滤",
+        "Settings 管理调度器/权限/告警配置",
+        "UI 通过 Store 订阅实现响应式更新"
+      ]
+    },
+    {
+      "id": "T035",
+      "phase": 4,
+      "title": "Phase 4 集成测试",
+      "description": "编写可观测性集成测试，验证事件总线、指标收集、告警触发、UI 渲染",
+      "architecture_ref": "§25 Phase 4",
+      "depends_on": ["T034"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "事件总线端到端测试通过",
+        "指标收集和导出测试通过",
+        "告警规则触发和通知测试通过",
+        "UI 渲染和交互测试通过",
+        "日志聚合查询测试通过"
+      ]
+    },
+    {
+      "id": "T036",
+      "phase": 5,
+      "title": "实现 MCP 集成",
+      "description": "实现 MCPServer 接口、MCPManager 连接管理、MCP 工具动态加载、MCP 依赖声明与等待",
+      "architecture_ref": "§21 MCP 集成",
+      "depends_on": ["T004"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "MCPServer 接口定义（name/tools/resources）",
+        "MCPManager 支持 connect/disconnect",
+        "loadMCPTools() 动态加载 MCP 工具到 ToolRegistry",
+        "waitForMcpServers() 等待依赖 MCP 服务器",
+        "MCP 连接失败不阻止启动（优雅降级）",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T037",
+      "phase": 5,
+      "title": "实现插件系统",
+      "description": "实现 Plugin 接口、PluginManager 生命周期管理、插件提供的工具/命令/策略/导出器集成",
+      "architecture_ref": "§22 插件系统",
+      "depends_on": ["T004", "T020"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Plugin 接口定义（name/version/onLoad/onUnload/tools/commands/strategies/exporters）",
+        "PluginManager 支持 load/unload",
+        "插件工具自动注册到 ToolRegistry",
+        "插件策略自动注册到 LoadBalancer",
+        "插件导出器自动注册到 MetricsCollector",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T038",
+      "phase": 5,
+      "title": "实现 Docker Backend",
+      "description": "实现 DockerBackend，支持容器化 Agent 实例管理，提供最强隔离级别",
+      "architecture_ref": "§7 Backend 抽象层",
+      "depends_on": ["T017"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "DockerBackend 实现 AgentBackend 接口",
+        "isAvailable() 检测 Docker 可用性",
+        "spawn() 创建容器化 Agent 实例",
+        "getOutput() 流式获取容器输出",
+        "terminate() 停止并清理容器",
+        "单元测试覆盖"
+      ]
+    },
+    {
+      "id": "T039",
+      "phase": 5,
+      "title": "实现 API 接口层",
+      "description": "实现 REST/WebSocket API，支持外部程序提交任务、查询状态、管理 Agent",
+      "architecture_ref": "§25 Phase 5",
+      "depends_on": ["T022"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "REST API: POST /tasks, GET /tasks/:id, DELETE /tasks/:id",
+        "REST API: GET /agents, GET /agents/:id",
+        "WebSocket: 实时推送 Agent 事件",
+        "API 认证与权限控制",
+        "API 文档（OpenAPI/Swagger）"
+      ]
+    },
+    {
+      "id": "T040",
+      "phase": 5,
+      "title": "Phase 5 集成测试与全系统验收",
+      "description": "编写扩展性集成测试，验证 MCP/插件/Docker Backend/API 接口，执行全系统端到端验收测试",
+      "architecture_ref": "§25 Phase 5",
+      "depends_on": ["T036", "T037", "T038", "T039"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "MCP 工具集成测试通过",
+        "插件加载/卸载测试通过",
+        "Docker Backend 端到端测试通过",
+        "API 接口测试通过",
+        "全系统端到端验收：多 Agent + 依赖 + 权限 + 监控 + 扩展"
+      ]
+    }
+  ]
+}

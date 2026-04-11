@@ -1,0 +1,35 @@
+# Playwright MCP
+.playwright-mcp/
+
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Screenshots
+*.png
+
+# Environment
+.env.local
+.env.*.local
+
+# Coverage
+coverage/
+
+# Logs
+*.log
+logs/
+
+# TypeScript
+*.tsbuildinfo

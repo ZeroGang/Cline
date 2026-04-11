@@ -1,0 +1,33 @@
+# Progress Log
+
+---
+
+## 2026-04-11 - Task: T001 初始化项目结构与依赖配置
+
+### What was done:
+- 创建 package.json，包含核心依赖：@anthropic-ai/sdk, commander, zod, pino, chalk, ws
+- 创建 tsconfig.json，配置 ES2022 target, NodeNext module, strict mode
+- 创建 eslint.config.js 和 .prettierrc 配置文件
+- 创建 src/ 目录骨架，包含 11 个模块目录：
+  - scheduler/ - 调度引擎
+  - agent/ - Agent 实例层
+  - tools/ - 工具系统
+  - backend/ - Backend 抽象层
+  - permissions/ - 权限系统
+  - sandbox/ - 沙箱隔离
+  - hooks/ - Hook 系统
+  - mcp/ - MCP 集成
+  - plugins/ - 插件系统
+  - infrastructure/ - 基础设施（state/logging/metrics/monitoring）
+  - cli/ - CLI 入口
+- 为每个模块创建 types.ts 和 index.ts，定义核心类型接口
+- 创建 src/types.ts 定义全局类型别名（AgentId, TaskId, PermissionMode 等）
+
+### Testing:
+- 运行 `npx tsc` 构建成功，生成 dist/ 目录
+- 验证所有类型定义正确导出
+
+### Notes:
+- npm install 在沙箱环境中可能失败，但 TypeScript 编译器可用
+- 暂时移除了 React/Ink 相关依赖，后续 UI 开发时再添加
+- 所有类型定义已按 architecture.md 设计完成
