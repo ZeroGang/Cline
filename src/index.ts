@@ -17,8 +17,8 @@ export {
   createBuiltinTools
 } from './tools/index.js'
 export type { AgentBackend, AgentSpawnConfig, AgentMessage } from './backend/index.js'
-export type { PermissionRule, PermissionCheckResult, PermissionModeConfig } from './permissions/index.js'
-export { PERMISSION_MODE_CONFIGS, RuleEngine, createRuleEngine, DEFAULT_RULES } from './permissions/index.js'
+export type { PermissionRule, PermissionCheckResult, PermissionModeConfig, PermissionSystemConfig } from './permissions/index.js'
+export { PERMISSION_MODE_CONFIGS, RuleEngine, createRuleEngine, DEFAULT_RULES, PermissionSystem, createPermissionSystem, createDefaultPermissionSystem } from './permissions/index.js'
 export type { SandboxConfig } from './sandbox/index.js'
 export { DEFAULT_SANDBOX_CONFIG } from './sandbox/index.js'
 export type { HookConfig, HookResult } from './hooks/index.js'

@@ -2,6 +2,28 @@
 
 ---
 
+## 2026-04-11 - Task: T008 实现 PermissionSystem 权限中间件
+
+### What was done:
+- 实现 PermissionSystem 类，整合 RuleEngine 和 PermissionMode
+- 实现 checkPermissions() 方法，返回 allow/deny/ask
+- 实现会话级缓存，避免重复询问
+- 实现 grantPermission/denyPermission 方法，支持用户确认后缓存
+- 支持 Plan Mode 下只允许只读工具
+- 更新 permissions/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/permissions/system.test.ts 单元测试
+- 测试覆盖：四种权限模式、会话缓存、自定义规则、工具权限提示
+- 运行 `npx vitest run tests/permissions/system.test.ts` 全部 29 个测试通过
+
+### Notes:
+- Plan Mode 禁止 Write/Edit/Bash 等修改性工具
+- 会话缓存在模式切换时自动清空
+- 支持禁用会话缓存（sessionCacheEnabled: false）
+
+---
+
 ## 2026-04-11 - Task: T007 实现权限模式定义与规则引擎
 
 ### What was done:

@@ -118,7 +118,7 @@
       "description": "实现 PermissionSystem 类，整合 RuleEngine 和 PermissionMode，提供 checkPermissions() 方法，支持会话级缓存",
       "architecture_ref": "§13.1 权限决策流程",
       "depends_on": ["T007"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "PermissionSystem 整合 RuleEngine",
         "checkPermissions() 返回 allow/deny/ask",
