@@ -55,7 +55,7 @@
       "description": "定义 Tool<Input, Output> 接口（name/description/inputSchema/isEnabled/isConcurrencySafe/isReadOnly/isDestructive/checkPermissions/execute），实现 ToolRegistry 注册/查询/过滤",
       "architecture_ref": "§10 工具注册表",
       "depends_on": ["T002"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Tool<I,O> 接口定义完整",
         "ToolRegistry 支持 register/get/getAll/filter",

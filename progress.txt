@@ -2,6 +2,27 @@
 
 ---
 
+## 2026-04-11 - Task: T004 实现工具接口与注册表
+
+### What was done:
+- 定义 Tool<Input, Output> 接口，包含 name/description/inputSchema/isEnabled/isConcurrencySafe/isReadOnly/isDestructive/checkPermissions/execute
+- 实现 ToolRegistry 类，支持 register/get/getAll/filter/remove/clear
+- 实现 createTool 工厂函数，支持默认值和自定义配置
+- 实现 getEnabled/getReadOnly/getDestructive 便捷方法
+- 更新 tools/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/tools/registry.test.ts 单元测试
+- 测试覆盖：注册/获取/过滤/删除工具、createTool 默认值和自定义配置
+- 运行 `npx vitest run tests/tools/registry.test.ts` 全部 13 个测试通过
+
+### Notes:
+- Tool 接口使用 Zod schema 进行输入验证
+- ToolRegistry 防止重复注册同名工具
+- createTool 提供合理的默认值（isEnabled: true, isReadOnly: false, isDestructive: false）
+
+---
+
 ## 2026-04-11 - Task: T003 实现日志系统基础设施
 
 ### What was done:
@@ -52,20 +73,9 @@
 - 创建 package.json，包含核心依赖：@anthropic-ai/sdk, commander, zod, pino, chalk, ws
 - 创建 tsconfig.json，配置 ES2022 target, NodeNext module, strict mode
 - 创建 eslint.config.js 和 .prettierrc 配置文件
-- 创建 src/ 目录骨架，包含 11 个模块目录：
-  - scheduler/ - 调度引擎
-  - agent/ - Agent 实例层
-  - tools/ - 工具系统
-  - backend/ - Backend 抽象层
-  - permissions/ - 权限系统
-  - sandbox/ - 沙箱隔离
-  - hooks/ - Hook 系统
-  - mcp/ - MCP 集成
-  - plugins/ - 插件系统
-  - infrastructure/ - 基础设施（state/logging/metrics/monitoring）
-  - cli/ - CLI 入口
+- 创建 src/ 目录骨架，包含 11 个模块目录
 - 为每个模块创建 types.ts 和 index.ts，定义核心类型接口
-- 创建 src/types.ts 定义全局类型别名（AgentId, TaskId, PermissionMode 等）
+- 创建 src/types.ts 定义全局类型别名
 
 ### Testing:
 - 运行 `npx tsc` 构建成功，生成 dist/ 目录
