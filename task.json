@@ -24,7 +24,7 @@
       "description": "实现 Store<T> 泛型类，支持 getState/setState/subscribe，实现 DeepImmutable 类型约束，定义 AppState 全局状态接口",
       "architecture_ref": "§5 状态管理",
       "depends_on": ["T001"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Store<T> 类实现 getState/setState/subscribe",
         "DeepImmutable<T> 类型约束生效",

@@ -2,6 +2,28 @@
 
 ---
 
+## 2026-04-11 - Task: T002 实现响应式状态管理 Store
+
+### What was done:
+- 实现 Store<T> 泛型类，支持 getState/setState/subscribe/select
+- 实现 DeepImmutable<T> 类型约束，确保状态不可变
+- 定义 AppState 全局状态接口，包含 scheduler/tasks/agents/logs/metrics/config/permissions
+- 创建 DEFAULT_APP_STATE 默认状态常量
+- 创建 createStore 工厂函数
+- 更新 infrastructure/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/state/store.test.ts 单元测试
+- 测试覆盖：初始化、状态更新、订阅/取消订阅、选择器、多订阅者
+- 运行 `npx vitest run tests/state/store.test.ts` 全部 7 个测试通过
+
+### Notes:
+- Store 使用发布-订阅模式，状态变更时通知所有订阅者
+- DeepImmutable 类型在编译时强制不可变性约束
+- useAppState hook 暂未实现（需要 React 环境，后续 UI 开发时添加）
+
+---
+
 ## 2026-04-11 - Task: T001 初始化项目结构与依赖配置
 
 ### What was done:
