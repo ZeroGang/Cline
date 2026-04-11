@@ -7,6 +7,8 @@ export {
   createWebFetchTool, 
   createWebSearchTool, 
   createAskUserQuestionTool,
+  createWriteTool,
+  createEditTool,
   registerBuiltinTools,
   createBuiltinTools
 } from './builtin/index.js'

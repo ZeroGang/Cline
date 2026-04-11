@@ -2,6 +2,27 @@
 
 ---
 
+## 2026-04-11 - Task: T006 实现写入工具集
+
+### What was done:
+- 实现 Write 工具：写入文件，支持创建嵌套目录
+- 实现 Edit 工具：搜索替换文件内容，要求 old_str 唯一匹配
+- 实现路径安全检查函数 isPathSafe/isEditPathSafe，防止路径遍历攻击
+- 更新 builtin/index.ts、tools/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/tools/write-edit.test.ts 单元测试
+- 测试覆盖：写入新文件、覆盖文件、创建嵌套目录、路径安全检查、编辑文件、错误处理
+- 运行 `npx vitest run tests/tools/write-edit.test.ts` 全部 17 个测试通过
+
+### Notes:
+- Write 和 Edit 的 isReadOnly() 返回 false，isDestructive() 返回 true
+- checkPermissions 返回 'ask'，需要用户确认才能执行
+- 路径安全检查确保只能操作当前工作目录及其子目录内的文件
+- Edit 工具要求 old_str 在文件中唯一匹配，避免意外修改多处内容
+
+---
+
 ## 2026-04-11 - Task: T005 实现基础只读工具集
 
 ### What was done:

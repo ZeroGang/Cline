@@ -11,6 +11,8 @@ export {
   createWebFetchTool,
   createWebSearchTool,
   createAskUserQuestionTool,
+  createWriteTool,
+  createEditTool,
   registerBuiltinTools,
   createBuiltinTools
 } from './tools/index.js'

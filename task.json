@@ -86,7 +86,7 @@
       "description": "实现 Write/Edit 两个写入工具，包含文件路径安全检查和权限声明",
       "architecture_ref": "§10.3 内置工具",
       "depends_on": ["T004"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Write/Edit 工具实现",
         "isReadOnly() 返回 false",
