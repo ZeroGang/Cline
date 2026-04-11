@@ -1,5 +1,27 @@
 export type { SchedulerConfig, Task, AgentMetrics, AgentEvent, SchedulerEvent, LoadBalanceStrategy } from './scheduler/index.js'
-export type { AgentContext, QueryDeps, AgentInstance, AgentDefinition } from './agent/index.js'
+export type { 
+  AgentContext, 
+  QueryDeps, 
+  AgentInstance, 
+  AgentDefinition,
+  Message,
+  ContentBlock,
+  TestDepsOptions,
+  CreateAgentContextOptions
+} from './agent/index.js'
+export { 
+  productionDeps, 
+  testDeps, 
+  createMockMessage, 
+  createMockToolUse, 
+  createMockToolResult,
+  createAgentContext,
+  resetAgentContext,
+  addMessage,
+  getMessages,
+  abort,
+  isAborted
+} from './agent/index.js'
 export type { Tool, ToolResult } from './tools/index.js'
 export { 
   ToolRegistry, 

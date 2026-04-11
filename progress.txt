@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-04-11 - Task: T009 实现 Agent 上下文与依赖注入
+
+### What was done:
+- 定义 AgentContext 接口，包含 messages/abortController/tools/permissionSystem/store 等字段
+- 定义 Message 和 ContentBlock 类型，支持文本和工具调用
+- 实现 QueryDeps 依赖注入接口
+- 实现 productionDeps() 工厂函数
+- 实现 testDeps() 工厂函数，支持 mock
+- 实现 createAgentContext() 工厂函数
+- 实现 resetAgentContext/addMessage/getMessages/abort/isAborted 辅助函数
+- 实现 createMockMessage/createMockToolUse/createMockToolResult 测试辅助函数
+- 更新 agent/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/agent/deps.test.ts 单元测试
+- 创建 tests/agent/context.test.ts 单元测试
+- 测试覆盖：依赖注入工厂、上下文创建、消息管理、中断处理
+- 运行 `npx vitest run tests/agent` 全部 29 个测试通过
+
+### Notes:
+- productionDeps 的 callModel 目前是占位实现，需要后续接入真实 LLM API
+- testDeps 支持完全自定义所有依赖，便于单元测试
+- AgentContext 整合了权限系统、工具注册表、状态存储等核心组件
+
+---
+
 ## 2026-04-11 - Task: T008 实现 PermissionSystem 权限中间件
 
 ### What was done:
