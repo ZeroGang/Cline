@@ -1,7 +1,19 @@
 export type { SchedulerConfig, Task, AgentMetrics, AgentEvent, SchedulerEvent, LoadBalanceStrategy } from './scheduler/index.js'
 export type { AgentContext, QueryDeps, AgentInstance, AgentDefinition } from './agent/index.js'
 export type { Tool, ToolResult } from './tools/index.js'
-export { ToolRegistry, createToolRegistry, createTool } from './tools/index.js'
+export { 
+  ToolRegistry, 
+  createToolRegistry, 
+  createTool,
+  createReadTool,
+  createGlobTool,
+  createGrepTool,
+  createWebFetchTool,
+  createWebSearchTool,
+  createAskUserQuestionTool,
+  registerBuiltinTools,
+  createBuiltinTools
+} from './tools/index.js'
 export type { AgentBackend, AgentSpawnConfig, AgentMessage } from './backend/index.js'
 export type { PermissionRule, PermissionCheckResult, PermissionModeConfig } from './permissions/index.js'
 export { PERMISSION_MODE_CONFIGS } from './permissions/index.js'

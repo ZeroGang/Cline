@@ -70,7 +70,7 @@
       "description": "实现 Read/Glob/Grep/WebFetch/WebSearch/AskUserQuestion 六个只读工具，每个工具包含完整的 inputSchema、权限声明和 execute 实现",
       "architecture_ref": "§10.3 内置工具",
       "depends_on": ["T004"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "6 个只读工具全部实现",
         "每个工具的 isReadOnly() 返回 true",

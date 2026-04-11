@@ -2,6 +2,31 @@
 
 ---
 
+## 2026-04-11 - Task: T005 实现基础只读工具集
+
+### What was done:
+- 实现 Read 工具：读取文件内容，支持 limit/offset 参数
+- 实现 Glob 工具：文件模式匹配搜索
+- 实现 Grep 工具：文件内容正则搜索，支持多种输出模式
+- 实现 WebFetch 工具：获取网页内容并转换为 Markdown
+- 实现 WebSearch 工具：网页搜索（占位实现）
+- 实现 AskUserQuestion 工具：向用户提问
+- 创建 registerBuiltinTools 和 createBuiltinTools 函数
+- 更新 tools/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/tools/builtin.test.ts 单元测试
+- 测试覆盖：每个工具的属性验证、execute 方法测试、注册功能测试
+- 运行 `npx vitest run tests/tools/builtin.test.ts` 全部 14 个测试通过
+
+### Notes:
+- 所有工具的 isReadOnly() 返回 true
+- WebFetch 和 WebSearch 的 checkPermissions 返回 'ask'，需要用户确认
+- AskUserQuestion 的 isConcurrencySafe 返回 false，因为需要等待用户响应
+- WebSearch 目前是占位实现，生产环境需要接入真实搜索 API
+
+---
+
 ## 2026-04-11 - Task: T004 实现工具接口与注册表
 
 ### What was done:
