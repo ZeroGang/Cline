@@ -2,6 +2,37 @@
 
 ---
 
+## 2026-04-11 - Task: T015 Phase 1 集成测试与 CLI 入口
+
+### What was done:
+- 实现 CLI 入口程序（src/cli.ts），支持 start/submit/status 命令
+- 实现 start 命令，启动调度器并监听事件
+- 实现 submit 命令，提交任务到调度器（占位实现）
+- 实现 status 命令，显示调度器状态（占位实现）
+- 更新 package.json bin 配置，指向编译后的 CLI 文件
+- 创建集成测试 tests/integration/phase1.test.ts
+- 测试完整工作流：提交任务 → Agent 执行 → 返回结果
+- 测试工具执行：Agent 调用工具并返回结果
+- 测试任务中断：取消正在执行的任务
+- 测试上下文压缩：多轮对话的上下文管理
+- 测试事件处理：验证事件发射和订阅
+- 测试多任务处理：顺序执行多个任务
+
+### Testing:
+- 创建 tests/integration/phase1.test.ts 集成测试
+- 测试覆盖：完整工作流、工具执行、任务中断、上下文压缩、事件处理、多任务处理
+- 运行 `npx vitest run tests/integration/phase1.test.ts` 全部 6 个测试通过
+
+### Notes:
+- CLI 使用 commander 库实现命令行接口
+- start 命令支持 --agent-id 和 --mode 参数
+- submit 命令支持 --priority 和 --type 参数
+- 集成测试验证了 Phase 1 所有核心功能
+- Phase 1 完成：实现了单 Agent 调度器的完整功能
+- 后续 Phase 2 将实现多 Agent 调度和负载均衡
+
+---
+
 ## 2026-04-11 - Task: T014 实现单 Agent 调度器 MVP
 
 ### What was done:

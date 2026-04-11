@@ -233,7 +233,7 @@
       "description": "实现 CLI 入口程序，串联所有 Phase 1 组件，编写集成测试验证单 Agent 完整工作流",
       "architecture_ref": "§25 Phase 1",
       "depends_on": ["T014"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "CLI 入口可启动调度器",
         "可通过命令行提交任务",

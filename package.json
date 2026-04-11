@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "cline": "dist/cli/index.js"
+    "cline": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
