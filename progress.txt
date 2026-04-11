@@ -2,6 +2,35 @@
 
 ---
 
+## 2026-04-11 - Task: T014 实现单 Agent 调度器 MVP
+
+### What was done:
+- 实现 Scheduler 类，整合 TaskQueue 和 AgentInstance
+- 实现 submitTask() 方法，提交任务并返回 TaskId
+- 实现 cancelTask() 方法，中断 Agent 执行
+- 实现 getTaskStatus/getTask 方法，查询任务状态
+- 实现 getPendingTasks/getRunningTasks/getCompletedTasks 方法
+- 实现 handleAgentEvent() 方法，更新 Store/Logger/Metrics
+- 实现事件订阅机制，支持 on/off 方法监听事件
+- 实现 shutdown() 方法，优雅关闭调度器
+- 实现 createScheduler 工厂函数
+- 更新 scheduler/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/scheduler/scheduler.test.ts 单元测试
+- 测试覆盖：任务提交、状态查询、任务取消、事件发射、多任务处理、优雅关闭
+- 运行 `npx vitest run tests/scheduler/scheduler.test.ts` 全部 12 个测试通过
+
+### Notes:
+- Scheduler 自动启动执行循环，提交任务后立即开始处理
+- 任务按优先级顺序执行，高优先级任务优先
+- 支持事件监听，可监听所有事件（'*'）或特定事件类型
+- handleAgentEvent 更新全局状态，包括 Agent 状态和指标
+- shutdown 会中断正在执行的任务并清理资源
+- 为后续多 Agent 调度器打下基础
+
+---
+
 ## 2026-04-11 - Task: T013 实现简单任务队列
 
 ### What was done:

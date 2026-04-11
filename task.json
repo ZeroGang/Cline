@@ -217,7 +217,7 @@
       "description": "实现 Scheduler 类，整合 TaskQueue 和单个 AgentInstance，实现 submitTask/cancelTask/getTaskStatus，支持基本的任务分配和事件处理",
       "architecture_ref": "§6.1 调度器架构",
       "depends_on": ["T012", "T013"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Scheduler 整合 TaskQueue + AgentInstance",
         "submitTask() 返回 TaskId",
