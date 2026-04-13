@@ -2,6 +2,31 @@
 
 ---
 
+## 2026-04-13 - Task: T039 实现 REST API
+
+### What was done:
+- 实现 ApiServer 类，支持路由注册和中间件
+- 实现 GET/POST/PUT/DELETE 路由方法
+- 实现 TaskApi，提供任务 CRUD 端点
+- 实现 AgentApi，提供 Agent 状态查询端点
+- 实现 SchedulerApi，提供调度器控制端点
+- 实现 createAuthMiddleware 认证中间件
+- 实现角色权限控制
+- 实现 OpenAPI 文档生成
+
+### Testing:
+- 创建 tests/api/server.test.ts 单元测试
+- 测试覆盖：路由注册、请求处理、中间件、认证、权限控制、OpenAPI 生成
+- 运行 `npx vitest run tests/api/server.test.ts` 全部 20 个测试通过
+
+### Notes:
+- ApiServer 支持路径参数匹配
+- 中间件支持链式调用和短路
+- OpenAPI 文档自动从路由生成
+- 支持健康检查端点 /api/health
+
+---
+
 ## 2026-04-13 - Task: T038 实现 Docker Backend
 
 ### What was done:
