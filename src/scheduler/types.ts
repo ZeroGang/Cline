@@ -57,4 +57,11 @@ export interface LoadBalanceStrategy {
   select(tasks: Task[], agents: { id: AgentId; status: string }[]): Task | null
 }
 
+export interface AgentPoolConfig {
+  minAgents: number
+  maxAgents: number
+  maxTurnsPerAgent: number
+  agentTimeout: number
+}
+
 export type { AgentId, TaskId, TaskPriority, TaskStatus, BackendType } from '../types.js'

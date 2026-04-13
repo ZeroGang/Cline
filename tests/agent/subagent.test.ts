@@ -42,7 +42,7 @@ const createMockDeps = (): QueryDeps => ({
 const createMockTask = (id: string): Task => ({
   id,
   type: 'single',
-  priority: 'normal',
+  priority: 'medium',
   status: 'pending',
   prompt: 'Test task',
   dependencies: [],

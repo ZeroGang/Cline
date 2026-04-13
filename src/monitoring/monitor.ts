@@ -1,4 +1,4 @@
-import { EventEmitter, createEventEmitter, type SchedulerEventMap, type AgentEventMap, type AllEvents } from './events.js'
+import { EventEmitter, type SchedulerEventMap, type AgentEventMap } from './events.js'
 import { Logger } from '../infrastructure/logging/logger.js'
 
 export interface AgentStatus {
@@ -60,7 +60,7 @@ export class AgentMonitor {
     config: Partial<AgentMonitorConfig> = {}
   ) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    this.logger = new Logger('AgentMonitor')
+    this.logger = new Logger({ source: 'AgentMonitor' })
     this.schedulerEmitter = schedulerEmitter
     this.setupSchedulerListeners()
   }
@@ -261,13 +261,14 @@ export class AgentMonitor {
   }
 
   getRecentEvents(limit?: number): RecentEvent[] {
-    const events = this.recentEvents.slice(-limit)
+    const events = limit ? this.recentEvents.slice(-limit) : this.recentEvents
     return events.map(e => ({ ...e }))
   }
 
   getRecentEventsByType(type: string, limit?: number): RecentEvent[] {
     const filtered = this.recentEvents.filter(e => e.type === type)
-    return filtered.slice(-limit).map(e => ({ ...e }))
+    const events = limit ? filtered.slice(-limit) : filtered
+    return events.map(e => ({ ...e }))
   }
 
   clearRecentEvents(): void {

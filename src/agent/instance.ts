@@ -2,7 +2,6 @@ import type { AgentId, AgentStatus } from '../types.js'
 import type { AgentEvent, AgentMetrics, Task } from '../scheduler/types.js'
 import type { AgentContext, AgentDefinition, QueryDeps } from './types.js'
 import { agentLoop, createAgentLoopConfig } from './loop.js'
-import { createAgentContext } from './context.js'
 
 export class AgentInstanceImpl {
   readonly id: AgentId

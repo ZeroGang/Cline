@@ -36,7 +36,7 @@ export class Coordinator {
   constructor(config: Partial<CoordinatorConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
     this.mailbox = createAgentMailbox()
-    this.logger = new Logger('Coordinator')
+    this.logger = new Logger({ source: 'Coordinator' })
   }
 
   registerAgent(agentId: AgentId): void {
@@ -55,12 +55,14 @@ export class Coordinator {
     if (task.type === 'compound') {
       const parts = this.parseCompoundTask(task)
       for (let i = 0; i < Math.min(parts.length, this.config.maxSubtasks!); i++) {
+        const part = parts[i]
+        if (!part) continue
         subtasks.push({
           id: `${task.id}-sub-${i}` as TaskId,
           type: 'subtask',
           priority: task.priority,
           status: 'pending',
-          prompt: parts[i],
+          prompt: part,
           dependencies: strategy === 'sequential' && i > 0 ? [`${task.id}-sub-${i - 1}` as TaskId] : [],
           retryCount: 0,
           maxRetries: task.maxRetries,

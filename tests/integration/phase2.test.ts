@@ -26,7 +26,7 @@ const createMockDeps = (): QueryDeps => ({
   inputSchema: {} as any
 })
 
-const createMockTask = (id: TaskId, priority: 'high' | 'normal' | 'low' = 'normal', dependencies: TaskId[] = []): Task => ({
+const createMockTask = (id: TaskId, priority: 'high' | 'medium' | 'low' = 'medium', dependencies: TaskId[] = []): Task => ({
   id,
   type: 'single',
   priority,
@@ -105,7 +105,7 @@ describe('Phase 2 Integration Tests', () => {
       const tasks = [
         createMockTask('low-1', 'low'),
         createMockTask('high-1', 'high'),
-        createMockTask('normal-1', 'normal'),
+        createMockTask('normal-1', 'medium'),
         createMockTask('high-2', 'high')
       ]
 
@@ -119,7 +119,7 @@ describe('Phase 2 Integration Tests', () => {
 
     it('should select highest priority task first', () => {
       const tasks = [
-        createMockTask('normal-1', 'normal'),
+        createMockTask('normal-1', 'medium'),
         createMockTask('high-1', 'high'),
         createMockTask('low-1', 'low')
       ]
@@ -149,9 +149,9 @@ describe('Phase 2 Integration Tests', () => {
 
     it('should detect task dependencies', () => {
       const tasks = [
-        createMockTask('task-1', 'normal', []),
-        createMockTask('task-2', 'normal', ['task-1']),
-        createMockTask('task-3', 'normal', ['task-1', 'task-2'])
+        createMockTask('task-1', 'medium', []),
+        createMockTask('task-2', 'medium', ['task-1']),
+        createMockTask('task-3', 'medium', ['task-1', 'task-2'])
       ]
 
       tasks.forEach(t => queue.enqueue(t))
@@ -162,9 +162,9 @@ describe('Phase 2 Integration Tests', () => {
 
     it('should detect circular dependencies', () => {
       const tasks = [
-        createMockTask('task-1', 'normal', ['task-3']),
-        createMockTask('task-2', 'normal', ['task-1']),
-        createMockTask('task-3', 'normal', ['task-2'])
+        createMockTask('task-1', 'medium', ['task-3']),
+        createMockTask('task-2', 'medium', ['task-1']),
+        createMockTask('task-3', 'medium', ['task-2'])
       ]
 
       const taskMap = new Map(tasks.map(t => [t.id, t]))
@@ -174,9 +174,9 @@ describe('Phase 2 Integration Tests', () => {
 
     it('should get correct execution order', () => {
       const tasks = [
-        createMockTask('task-1', 'normal', []),
-        createMockTask('task-2', 'normal', ['task-1']),
-        createMockTask('task-3', 'normal', ['task-1'])
+        createMockTask('task-1', 'medium', []),
+        createMockTask('task-2', 'medium', ['task-1']),
+        createMockTask('task-3', 'medium', ['task-1'])
       ]
 
       const order = resolver.getExecutionOrder(tasks)
@@ -185,9 +185,9 @@ describe('Phase 2 Integration Tests', () => {
 
     it('should check if dependencies are met', () => {
       const tasks = [
-        createMockTask('task-1', 'normal', []),
-        createMockTask('task-2', 'normal', ['task-1']),
-        createMockTask('task-3', 'normal', ['task-1', 'task-2'])
+        createMockTask('task-1', 'medium', []),
+        createMockTask('task-2', 'medium', ['task-1']),
+        createMockTask('task-3', 'medium', ['task-1', 'task-2'])
       ]
 
       const completedTasks = new Set<TaskId>()
@@ -301,7 +301,7 @@ describe('Phase 2 Integration Tests', () => {
       const task: Task = {
         id: 'compound-1',
         type: 'compound',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: '- Part 1\n- Part 2\n- Part 3',
         dependencies: [],

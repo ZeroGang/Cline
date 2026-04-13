@@ -7,7 +7,7 @@ import { productionDeps } from './agent/deps.js'
 import { Logger } from './infrastructure/logging/logger.js'
 
 const program = new Command()
-const logger = new Logger('CLI')
+const logger = new Logger({ source: 'CLI' })
 
 program
   .name('cline')

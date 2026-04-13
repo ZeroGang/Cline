@@ -300,7 +300,7 @@ describe('loadMCPTools', () => {
     const tool = registry.get('mcp_test-server_test-tool')
     const result = await tool?.execute({ arg: 'value' })
 
-    expect(result).toEqual({ result: 'success' })
+    expect(result).toEqual({ output: '{"result":"success"}', error: false })
     expect(server.callTool).toHaveBeenCalledWith('test-tool', { arg: 'value' })
   })
 })

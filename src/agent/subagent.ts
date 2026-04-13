@@ -1,13 +1,11 @@
-import type { AgentContext, AgentDefinition, Message } from './types.js'
-import type { AgentId, TaskId, PermissionMode } from '../types.js'
+import type { AgentContext, AgentDefinition } from './types.js'
+import type { AgentId, TaskId } from '../types.js'
 import type { Task, AgentEvent } from '../scheduler/types.js'
 import type { ToolRegistry } from '../tools/registry.js'
 import type { Store } from '../infrastructure/state/store.js'
 import type { AppState } from '../infrastructure/state/index.js'
-import type { MCPTool } from '../mcp/types.js'
 import type { QueryDeps } from './types.js'
 import { AgentInstanceImpl, createAgentInstance } from './instance.js'
-import { createAgentContext } from './context.js'
 import { ToolRegistry as ToolRegistryClass } from '../tools/registry.js'
 import { createDefaultPermissionSystem } from '../permissions/system.js'
 import { Store as StoreClass } from '../infrastructure/state/store.js'
@@ -92,7 +90,7 @@ export class SubagentExecutor {
     this.definition = definition
     this.parentContext = parentContext
     this.deps = deps
-    this.logger = new Logger('SubagentExecutor')
+    this.logger = new Logger({ source: 'SubagentExecutor' })
   }
 
   async executeSync(

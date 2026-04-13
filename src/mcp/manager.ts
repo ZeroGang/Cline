@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { Logger } from '../infrastructure/logging/logger.js'
 import { Tool, ToolRegistry } from '../tools/index.js'
 
@@ -59,7 +60,7 @@ export class MCPManager {
 
   constructor(config: Partial<MCPManagerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    this.logger = new Logger('MCPManager')
+    this.logger = new Logger({ source: 'MCPManager' })
   }
 
   async connect(name: string, server: MCPServer): Promise<void> {
@@ -215,9 +216,18 @@ export function loadMCPTools(
     const tool: Tool = {
       name: `mcp_${server.name}_${mcpTool.name}`,
       description: mcpTool.description,
-      inputSchema: mcpTool.inputSchema,
-      execute: async (args: Record<string, unknown>) => {
-        return server.callTool(mcpTool.name, args)
+      inputSchema: z.record(z.unknown()),
+      isEnabled: () => true,
+      isConcurrencySafe: () => true,
+      isReadOnly: () => true,
+      isDestructive: () => false,
+      checkPermissions: () => 'allow',
+      execute: async (args: unknown) => {
+        const result = await server.callTool(mcpTool.name, args as Record<string, unknown>)
+        return {
+          output: typeof result === 'string' ? result : JSON.stringify(result),
+          error: false
+        }
       }
     }
 

@@ -12,7 +12,7 @@ function createTestTask(prompt: string): Task {
   return {
     id: `task-${Date.now()}`,
     type: 'test',
-    priority: 'normal',
+    priority: 'medium',
     status: 'pending',
     prompt,
     dependencies: [],

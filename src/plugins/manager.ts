@@ -57,7 +57,7 @@ export class PluginManager {
     }
   ) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    this.logger = new Logger('PluginManager')
+    this.logger = new Logger({ source: 'PluginManager' })
     
     if (dependencies) {
       this.toolRegistry = dependencies.toolRegistry

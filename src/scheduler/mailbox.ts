@@ -1,5 +1,4 @@
 import type { AgentId, TaskId } from '../types.js'
-import type { Task } from './types.js'
 import { Logger } from '../infrastructure/logging/logger.js'
 
 export interface AgentMessage {
@@ -27,7 +26,7 @@ export class AgentMailbox {
 
   constructor(options: Partial<MailboxOptions> = {}) {
     this.maxSize = options.maxSize ?? DEFAULT_OPTIONS.maxSize!
-    this.logger = new Logger('AgentMailbox')
+    this.logger = new Logger({ source: 'AgentMailbox' })
   }
 
   register(agentId: AgentId): void {

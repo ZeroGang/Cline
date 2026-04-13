@@ -5,7 +5,6 @@ import { TaskQueue, createTaskQueue, createTask } from './queue.js'
 import { AgentInstanceImpl, createAgentInstance } from '../agent/instance.js'
 import { createAgentContext } from '../agent/context.js'
 import { ToolRegistry } from '../tools/registry.js'
-import { PermissionSystem } from '../permissions/system.js'
 import { Store } from '../infrastructure/state/store.js'
 import { DEFAULT_APP_STATE } from '../infrastructure/state/index.js'
 import { Logger } from '../infrastructure/logging/logger.js'
@@ -31,16 +30,13 @@ export class Scheduler {
   ) {
     this.taskQueue = createTaskQueue(config.taskQueueConfig)
     this.store = new Store(DEFAULT_APP_STATE)
-    this.logger = new Logger('Scheduler')
+    this.logger = new Logger({ source: 'Scheduler' })
 
     const tools = new ToolRegistry()
-    const permissionSystem = new PermissionSystem({ 
-      mode: config.agentDefinition.permissionMode 
-    })
 
     const context = createAgentContext({
       tools,
-      permissionSystem,
+      permissionMode: config.agentDefinition.permissionMode,
       store: this.store,
       sessionId: config.agentId
     })

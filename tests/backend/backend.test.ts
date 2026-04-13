@@ -173,10 +173,10 @@ describe('BackendSelector', () => {
 
   describe('setPreferredBackend', () => {
     it('should update preferred backend', async () => {
-      selector.setPreferredBackend('inprocess')
+      selector.setPreferredBackend('in-process')
 
       const backend = await selector.select()
-      expect(backend.type).toBe('inprocess')
+      expect(backend.type).toBe('in-process')
     })
   })
 })

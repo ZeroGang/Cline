@@ -4,12 +4,12 @@ import type { AgentEvent } from '../scheduler/types.js'
 import { Logger } from '../infrastructure/logging/logger.js'
 
 export class InProcessBackend implements AgentBackend {
-  readonly type: BackendType = 'inprocess'
+  readonly type: BackendType = 'in-process'
   private agents: Map<AgentId, { active: boolean; output: AgentEvent[] }> = new Map()
   private logger: Logger
 
   constructor() {
-    this.logger = new Logger('InProcessBackend')
+    this.logger = new Logger({ source: 'InProcessBackend' })
   }
 
   async isAvailable(): Promise<boolean> {

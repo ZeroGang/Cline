@@ -1,4 +1,4 @@
-import { ApiServer, createApiServer, type ApiRequest, type ApiResponse } from './server.js'
+import { ApiServer, type ApiRequest } from './server.js'
 import type { Task, TaskStatus, TaskPriority } from '../scheduler/types.js'
 import type { AgentStatus } from '../monitoring/monitor.js'
 
@@ -76,15 +76,18 @@ export class TaskApi {
 
       const body = req.body as Record<string, unknown>
       
-      if (!body.description) {
-        return this.server.errorResponse(400, 'Missing description')
+      if (!body.prompt) {
+        return this.server.errorResponse(400, 'Missing prompt')
       }
 
       const task = await this.deps.createTask({
-        description: body.description as string,
-        priority: (body.priority as TaskPriority) || 'normal',
+        prompt: body.prompt as string,
+        type: (body.type as string) || 'default',
+        priority: (body.priority as TaskPriority) || 'medium',
         status: 'pending',
         dependencies: (body.dependencies as string[]) || [],
+        retryCount: 0,
+        maxRetries: 3,
         metadata: (body.metadata as Record<string, unknown>) || {}
       })
 
@@ -106,7 +109,7 @@ export class TaskApi {
 
       if (body.priority) updates.priority = body.priority as TaskPriority
       if (body.status) updates.status = body.status as TaskStatus
-      if (body.description) updates.description = body.description as string
+      if (body.prompt) updates.prompt = body.prompt as string
       if (body.metadata) updates.metadata = body.metadata as Record<string, unknown>
 
       const task = await this.deps.updateTask(id, updates)

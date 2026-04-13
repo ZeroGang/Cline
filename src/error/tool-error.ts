@@ -159,7 +159,7 @@ export class ToolErrorHandler {
   private retryDelay: number
 
   constructor(maxRetries: number = 3, retryDelay: number = 1000) {
-    this.logger = new Logger('ToolErrorHandler')
+    this.logger = new Logger({ source: 'ToolErrorHandler' })
     this.maxRetries = maxRetries
     this.retryDelay = retryDelay
   }

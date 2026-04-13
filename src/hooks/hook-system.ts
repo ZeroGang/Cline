@@ -1,4 +1,4 @@
-import type { Tool, ToolResult } from '../tools/index.js'
+import type { ToolResult } from '../tools/index.js'
 import { Logger } from '../infrastructure/logging/logger.js'
 
 export type HookPoint = 
@@ -63,7 +63,7 @@ export class HookSystem {
 
   constructor(config: Partial<HookConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    this.logger = new Logger('HookSystem')
+    this.logger = new Logger({ source: 'HookSystem' })
   }
 
   registerHook(
@@ -155,7 +155,7 @@ export class HookSystem {
     for (const hook of hooks) {
       try {
         const result = await this.executeWithTimeout(
-          hook.handler(currentContext),
+          Promise.resolve(hook.handler(currentContext)),
           hook.timeout
         )
 

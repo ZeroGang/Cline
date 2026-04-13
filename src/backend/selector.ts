@@ -1,7 +1,7 @@
 import type { AgentBackend } from './types.js'
 import type { BackendType } from '../types.js'
-import { InProcessBackend, createInProcessBackend } from './inprocess.js'
-import { TmuxBackend, createTmuxBackend } from './tmux.js'
+import { createInProcessBackend } from './inprocess.js'
+import { createTmuxBackend } from './tmux.js'
 import { Logger } from '../infrastructure/logging/logger.js'
 
 export interface BackendSelectorConfig {
@@ -18,7 +18,7 @@ export class BackendSelector {
   constructor(config: BackendSelectorConfig = {}) {
     this.preferredBackend = config.preferredBackend || 'tmux'
     this.fallbackToInProcess = config.fallbackToInProcess ?? true
-    this.logger = new Logger('BackendSelector')
+    this.logger = new Logger({ source: 'BackendSelector' })
 
     this.registerBackend(createInProcessBackend())
     this.registerBackend(createTmuxBackend())
@@ -40,15 +40,15 @@ export class BackendSelector {
     this.logger.warn('Preferred backend not available', { type: this.preferredBackend })
 
     if (this.fallbackToInProcess) {
-      const inProcess = this.backends.get('inprocess')
+      const inProcess = this.backends.get('in-process')
       if (inProcess && await inProcess.isAvailable()) {
-        this.logger.info('Falling back to inprocess backend')
+        this.logger.info('Falling back to in-process backend')
         return inProcess
       }
     }
 
     for (const [type, backend] of this.backends) {
-      if (type !== this.preferredBackend && type !== 'inprocess') {
+      if (type !== this.preferredBackend && type !== 'in-process') {
         if (await backend.isAvailable()) {
           this.logger.info('Selected available backend', { type })
           return backend

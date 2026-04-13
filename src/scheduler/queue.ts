@@ -4,12 +4,13 @@ import { DependencyResolver, createDependencyResolver } from './dependency.js'
 
 const DEFAULT_QUEUE_CONFIG: TaskQueueConfig = {
   maxConcurrent: 10,
-  defaultPriority: 'normal'
+  defaultPriority: 'medium'
 }
 
 const PRIORITY_ORDER: Record<TaskPriority, number> = {
+  critical: 4,
   high: 3,
-  normal: 2,
+  medium: 2,
   low: 1
 }
 
@@ -62,6 +63,7 @@ export class TaskQueue {
 
     for (let i = 0; i < this.queue.length; i++) {
       const task = this.queue[i]
+      if (!task) continue
 
       if (!this.dependencyResolver.areDependenciesMet(task, completedIds)) {
         continue
@@ -144,13 +146,15 @@ export class TaskQueue {
     const queueIndex = this.queue.findIndex(t => t.id === taskId)
     if (queueIndex !== -1) {
       const task = this.queue[queueIndex]
-      const cancelledTask: Task = {
-        ...task,
-        status: 'cancelled',
-        completedAt: Date.now()
+      if (task) {
+        const cancelledTask: Task = {
+          ...task,
+          status: 'cancelled',
+          completedAt: Date.now()
+        }
+        this.queue.splice(queueIndex, 1)
+        this.completed.set(taskId, cancelledTask)
       }
-      this.queue.splice(queueIndex, 1)
-      this.completed.set(taskId, cancelledTask)
       return
     }
 
@@ -257,8 +261,9 @@ export class TaskQueue {
 
   getPriorityStats(): Record<TaskPriority, { pending: number; running: number; completed: number }> {
     const stats: Record<TaskPriority, { pending: number; running: number; completed: number }> = {
+      critical: { pending: 0, running: 0, completed: 0 },
       high: { pending: 0, running: 0, completed: 0 },
-      normal: { pending: 0, running: 0, completed: 0 },
+      medium: { pending: 0, running: 0, completed: 0 },
       low: { pending: 0, running: 0, completed: 0 }
     }
 
@@ -316,7 +321,7 @@ export function createTask(
   return {
     id,
     type: options.type || 'default',
-    priority: options.priority || 'normal',
+    priority: options.priority || 'medium',
     status: 'pending',
     prompt,
     dependencies: options.dependencies || [],

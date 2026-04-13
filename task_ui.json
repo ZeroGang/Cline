@@ -1,0 +1,499 @@
+{
+  "project": "CLine UI",
+  "description": "CLine 监控仪表板前端 - 基于 ui-analysis.md 设计规范的 UI 开发任务",
+  "tasks": [
+    {
+      "id": "UI001",
+      "phase": 1,
+      "title": "初始化 React + Vite 前端项目",
+      "description": "使用 Vite 创建 React + TypeScript 项目，安装核心依赖（zustand、react-router-dom、@dnd-kit/core、@dnd-kit/sortable、socket.io-client、recharts、lucide-react、clsx、tailwind-merge、date-fns），配置 package.json、tsconfig.json、vite.config.ts、tailwind.config.js、postcss.config.js",
+      "architecture_ref": "ui-analysis.md 技术栈推荐 方案A",
+      "depends_on": [],
+      "status": "completed",
+      "acceptance_criteria": [
+        "npm create vite@latest ui -- --template react-ts 执行成功",
+        "package.json 包含所有核心依赖（zustand/react-router-dom/@dnd-kit/core/@dnd-kit/sortable/socket.io-client/recharts/lucide-react/clsx/tailwind-merge/date-fns）",
+        "devDependencies 包含 tailwindcss/postcss/autoprefixer/@types/node",
+        "tsconfig.json 配置严格模式和路径别名 @/ 指向 src/",
+        "vite.config.ts 配置路径别名 resolve.alias",
+        "npm run dev 启动无报错"
+      ]
+    },
+    {
+      "id": "UI002",
+      "phase": 1,
+      "title": "配置 Tailwind CSS 暗色主题与全局样式",
+      "description": "配置 Tailwind CSS 暗色主题，定义 CSS 自定义属性（配色方案/字体/间距/阴影/动画时长/断点），创建 globals.css、variables.css、animations.css 样式文件",
+      "architecture_ref": "ui-analysis.md 设计规范 - 配色方案/字体规范/间距系统",
+      "depends_on": ["UI001"],
+      "status": "completed",
+      "acceptance_criteria": [
+        "tailwind.config.js 配置 darkMode: 'class' 和自定义颜色/间距/字体扩展",
+        "variables.css 定义完整 CSS 变量（bg-primary/secondary/card/hover/active、text-primary/secondary/muted/disabled、accent-blue/green/yellow/red/purple/cyan、border-color/light/radius、shadow-xs~xl、duration-fast/normal/slow、ease-default/in/out/in-out、breakpoint-sm~2xl）",
+        "globals.css 引入 Tailwind 基础指令和 variables.css",
+        "animations.css 定义脉冲动画、淡入淡出、滑入滑出、骨架屏脉冲等全局动画",
+        "暗色主题默认生效，body 添加 dark class"
+      ]
+    },
+    {
+      "id": "UI003",
+      "phase": 1,
+      "title": "定义 TypeScript 类型与接口",
+      "description": "定义 UI 层所有核心 TypeScript 类型：TaskCard、AgentInfo、TaskStatus、TaskPriority、LogEntry、WSEvent、API 请求/响应类型、UI 组件 Props 类型",
+      "architecture_ref": "ui-analysis.md 核心组件详解 - TaskCard 数据结构/WSEvent 类型",
+      "depends_on": ["UI001"],
+      "status": "completed",
+      "acceptance_criteria": [
+        "types/task.ts 定义 TaskCard 接口（id/title/description/priority/status/agentInfo/metadata/tags/progress/actions）",
+        "types/task.ts 定义 TaskPriority 枚举（critical/high/medium/low）和 TaskStatus 枚举（pending/running/completed/failed）",
+        "types/agent.ts 定义 AgentInfo 接口（agentId/agentName/avatar/status/health/cpu/memory/networkIO）",
+        "types/websocket.ts 定义 WSEvent 联合类型（TASK_CREATED/TASK_UPDATED/TASK_STATUS_CHANGED/AGENT_STATUS_CHANGED/LOG_ENTRY/METRICS_UPDATED）",
+        "types/api.ts 定义 API 请求/响应泛型类型",
+        "types/ui.ts 定义通用 UI Props 类型"
+      ]
+    },
+    {
+      "id": "UI004",
+      "phase": 1,
+      "title": "实现 Zustand 状态管理 Store",
+      "description": "实现 Zustand stores：taskStore（任务列表/过滤/排序）、agentStore（Agent 列表/状态）、uiStore（面板开关/侧边栏折叠/选中任务）、settingsStore（用户设置/主题）、notificationStore（通知消息）",
+      "architecture_ref": "ui-analysis.md 推荐项目结构 - stores/",
+      "depends_on": ["UI003"],
+      "status": "completed",
+      "acceptance_criteria": [
+        "taskStore 支持 tasks 数组、addTask/updateTask/removeTask、filterByStatus/filterByPriority、sortByPriority/sortByDate",
+        "agentStore 支持 agents 数组、updateAgentStatus、getAgentById",
+        "uiStore 支持 sidebarCollapsed/detailPanelOpen/selectedTaskId、toggleSidebar/openDetailPanel/closeDetailPanel/selectTask",
+        "settingsStore 支持 theme/permissionMode/timeout/retryPolicy、updateSettings",
+        "notificationStore 支持 notifications 数组、addNotification/removeNotification/clearAll",
+        "所有 store 使用 Zustand create + TypeScript 泛型"
+      ]
+    },
+    {
+      "id": "UI005",
+      "phase": 1,
+      "title": "实现通用 UI 组件库",
+      "description": "实现 common/ 目录下所有通用组件：Badge、Button、Modal、Tooltip、ProgressBar、StatusIndicator、Avatar、Input、Select、Spinner",
+      "architecture_ref": "ui-analysis.md 推荐项目结构 - components/common/",
+      "depends_on": ["UI002", "UI003"],
+      "status": "completed",
+      "acceptance_criteria": [
+        "Badge 组件支持 variant（default/success/warning/error/info）和 size（sm/md/lg）",
+        "Button 组件支持 variant（primary/secondary/outline/ghost/danger）和 size（sm/md/lg）、loading 状态、disabled 状态",
+        "Modal 组件支持 open/close 动画、标题、内容、底部操作区、ESC 关闭",
+        "Tooltip 组件支持方向（top/bottom/left/right）和延迟显示",
+        "ProgressBar 组件支持 value/color/animated 属性",
+        "StatusIndicator 组件支持 status（pending/running/completed/failed）对应颜色和动画",
+        "Avatar 组件支持图片/文字回退、size 属性",
+        "Input 组件支持 label/error/prefix/suffix",
+        "Select 组件支持 options/placeholder/searchable",
+        "Spinner 组件支持 size/color 变体"
+      ]
+    },
+    {
+      "id": "UI006",
+      "phase": 1,
+      "title": "实现布局组件（Header/Sidebar/MainLayout/Footer）",
+      "description": "实现三栏式布局组件：MainLayout 容器、Sidebar 左侧导航栏（支持折叠/展开）、Header 顶部标题栏、Footer 底部状态栏，实现响应式断点适配",
+      "architecture_ref": "ui-analysis.md 界面设计分析 - 整体布局/左侧导航栏",
+      "depends_on": ["UI004", "UI005"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "MainLayout 使用 CSS Grid/Flexbox 实现三栏布局（sidebar + main + detail panel）",
+        "Sidebar 宽度 240px（展开）/64px（折叠），深色背景 #1a1a1a，图标+文字组合，支持折叠/展开切换",
+        "Sidebar 包含导航项：Dashboard/项目列表/任务管理/统计分析/系统设置/工具箱",
+        "Sidebar 底部显示系统运行状态指示灯",
+        "Header 包含 Logo + 标题 + 全局操作按钮（新建任务/搜索/通知）",
+        "Footer 显示连接状态（WebSocket 指示灯）和版本信息",
+        "响应式：≤768px 隐藏侧边栏和详情面板，769-1024px 侧边栏折叠为图标模式，≥1025px 完整三栏"
+      ]
+    },
+    {
+      "id": "UI007",
+      "phase": 1,
+      "title": "搭建路由系统与页面骨架",
+      "description": "使用 React Router v6 搭建路由系统，定义路由表，实现 Layout 路由嵌套，创建所有页面骨架组件（Dashboard/TasksPage/AgentsPage/SettingsPage/LogsPage/NotFound）",
+      "architecture_ref": "ui-analysis.md 推荐项目结构 - pages/",
+      "depends_on": ["UI006"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "路由表定义：/dashboard、/tasks、/agents、/settings、/logs、*（404）",
+        "Layout 路由嵌套：MainLayout 包裹所有页面路由",
+        "Sidebar 导航项点击切换路由并高亮当前项",
+        "Dashboard 页面骨架渲染",
+        "TasksPage 页面骨架渲染",
+        "AgentsPage 页面骨架渲染",
+        "SettingsPage 页面骨架渲染",
+        "LogsPage 页面骨架渲染",
+        "NotFound 页面显示 404 信息和返回首页链接",
+        "默认路由重定向到 /dashboard"
+      ]
+    },
+    {
+      "id": "UI008",
+      "phase": 1,
+      "title": "Phase 1 集成验证",
+      "description": "验证 Phase 1 所有组件集成正常：项目构建通过、暗色主题三栏布局正确、侧边栏导航切换页面、路由正常工作、通用组件渲染正确",
+      "architecture_ref": "ui-analysis.md 实施路线图 - Phase 1 交付物清单",
+      "depends_on": ["UI007"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "npm run build 构建通过无报错",
+        "npm run dev 启动后暗色主题三栏布局正确显示",
+        "侧边栏导航点击可切换页面，当前项高亮",
+        "侧边栏折叠/展开交互正常",
+        "路由切换无 404 错误（除 /not-found 外）",
+        "通用组件（Button/Badge/Modal/ProgressBar/StatusIndicator）渲染正确",
+        "响应式断点在 768px/1024px 切换时布局正确适配"
+      ]
+    },
+    {
+      "id": "UI009",
+      "phase": 2,
+      "title": "实现 API 服务层与 WebSocket 封装",
+      "description": "实现 services/ 目录：apiClient（Axios/Fetch 实例配置、拦截器）、taskService（任务 CRUD API）、agentService（Agent RESTful API）、logService（日志查询 API）、metricsService（指标数据 API）、websocketService（WebSocket 连接管理、事件监听、断线重连）",
+      "architecture_ref": "ui-analysis.md 推荐项目结构 - services/，交互特性 - 实时数据更新",
+      "depends_on": ["UI008"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "apiClient 配置 baseURL/timeout/拦截器（请求添加 token、响应错误统一处理）",
+        "taskService 实现 getTasks/getTaskById/createTask/updateTask/deleteTask",
+        "agentService 实现 getAgents/getAgentById/updateAgentConfig",
+        "logService 实现 getLogs（支持 level/source/time 范围查询）",
+        "metricsService 实现 getMetrics/getMetricsHistory",
+        "websocketService 实现连接建立/事件监听/断线重连（指数退避 1s/2s/4s/8s 最大 30s）",
+        "websocketService 支持事件类型：TASK_CREATED/TASK_UPDATED/TASK_STATUS_CHANGED/AGENT_STATUS_CHANGED/LOG_ENTRY/METRICS_UPDATED",
+        "重连成功后拉取最新状态"
+      ]
+    },
+    {
+      "id": "UI010",
+      "phase": 2,
+      "title": "实现自定义 Hooks",
+      "description": "实现 hooks/ 目录：useTasks（任务 CRUD 操作）、useAgents（Agent 状态查询）、useWebSocket（WebSocket 连接管理）、useDragAndDrop（拖拽逻辑封装）、useTheme（主题切换）、useLocalStorage（本地存储读写）、useDebounce（防抖）、useKeyboardShortcuts（快捷键绑定）",
+      "architecture_ref": "ui-analysis.md 推荐项目结构 - hooks/，交互特性 - 键盘快捷键",
+      "depends_on": ["UI009"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "useTasks 封装 taskService 调用，返回 tasks/loading/error/refetch",
+        "useAgents 封装 agentService 调用，返回 agents/loading/error/refetch",
+        "useWebSocket 管理 WebSocket 连接生命周期，返回 isConnected/lastEvent/reconnect",
+        "useDragAndDrop 封装 @dnd-kit 逻辑，返回 sensors/handleDragEnd/handleDragOver",
+        "useTheme 支持暗色/亮色切换，持久化到 localStorage",
+        "useLocalStorage 支持泛型 get/set/remove",
+        "useDebounce 支持 delay 参数和依赖数组",
+        "useKeyboardShortcuts 支持 Ctrl+N（新建任务）、Ctrl+F（搜索）、Space（开始/暂停）、Esc（关闭面板）、方向键导航、Enter（查看详情）、Delete（删除）"
+      ]
+    },
+    {
+      "id": "UI011",
+      "phase": 2,
+      "title": "实现 KanbanBoard 看板容器与列组件",
+      "description": "实现 KanbanBoard 看板主容器和 KanbanColumn 列组件（Backlog/In Progress/Complete），集成 @dnd-kit 拖拽排序，支持列内排序和列间移动，实现 ColumnHeader 列标题（含任务计数）和 AddTaskButton 添加任务按钮",
+      "architecture_ref": "ui-analysis.md 核心组件详解 - 中间主内容区/拖拽排序",
+      "depends_on": ["UI010"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "KanbanBoard 渲染三列看板（Backlog/In Progress/Complete），水平排列，可横向滚动",
+        "KanbanColumn 支持拖拽容器（Droppable），显示列标题和任务计数",
+        "ColumnHeader 显示列名、任务数量徽章、添加按钮",
+        "AddTaskButton 点击弹出新建任务 Modal",
+        "拖拽排序：同一列内任务卡片可重新排序",
+        "拖拽移动：任务卡片可从一列拖到另一列（改变任务状态）",
+        "拖拽时卡片半透明（opacity: 0.8），目标位置显示占位符虚线框",
+        "松手后平滑动画过渡（300ms ease-out）",
+        "触摸设备支持长按触发拖拽"
+      ]
+    },
+    {
+      "id": "UI012",
+      "phase": 2,
+      "title": "实现 TaskCard 任务卡片组件",
+      "description": "实现 TaskCard 卡片组件，展示任务标题/描述/优先级颜色编码/状态指示器/进度条/Agent 信息/标签/时间信息/操作按钮，支持优先级颜色编码和状态动画",
+      "architecture_ref": "ui-analysis.md 核心组件详解 - 任务卡片组件",
+      "depends_on": ["UI011"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "TaskCard 展示任务标题和简短描述",
+        "优先级颜色编码：Critical=#ef4444、High=#f59e0b、Medium=#eab308、Low=#10b981（边框/标签背景）",
+        "状态指示器：Pending=#666666 无动画、Running=#3b82f6 脉冲动画、Completed=#10b981 对勾图标、Failed=#ef4444 警告闪烁",
+        "进度条显示 progress 百分比（0-100），带动画效果",
+        "Agent 头像和名称显示",
+        "标签数组渲染为 Badge 组件",
+        "时间信息显示（创建时间/更新时间，使用 date-fns 格式化）",
+        "操作按钮（开始/暂停/查看日志）根据 actions 权限显示",
+        "卡片尺寸：宽度 280px、最小高度 120px、圆角 8px、内边距 16px、间距 12px",
+        "卡片悬停效果（阴影加深/轻微上移）"
+      ]
+    },
+    {
+      "id": "UI013",
+      "phase": 2,
+      "title": "实现右侧详情面板组件",
+      "description": "实现 TaskDetail 详情面板主体，包含 Tab 切换（详情/日志/配置），实现 AgentStatus Agent 状态卡片、ConfigPanel 配置选项面板、ActionButtons 操作按钮组，面板可展开/收起，宽度 360px 可调整",
+      "architecture_ref": "ui-analysis.md 核心组件详解 - 右侧详情面板",
+      "depends_on": ["UI012"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "TaskDetail 面板宽度 360px，支持展开/收起滑出动画（translateX + opacity）",
+        "Tab 切换：详情/日志/配置三个标签页",
+        "详情 Tab：任务 ID（可复制）、名称和描述、创建者信息和时间戳、最后更新时间",
+        "AgentStatus 卡片：Agent 名称、健康状态指示灯、CPU 使用率进度条、内存占用数值、网络 I/O 统计",
+        "ConfigPanel：权限模式选择器（default/plan/auto/bypass）、后端类型显示、超时设置（可编辑）、重试策略配置",
+        "ActionButtons：Start/Pause/Resume/Stop 主操作按钮（实心填充 40px）、Retry 次要按钮（描边 36px，仅失败状态显示）、View Full Logs/Download Results 辅助按钮、Stop 危险操作（红色主题）",
+        "面板关闭时选中任务取消选中"
+      ]
+    },
+    {
+      "id": "UI014",
+      "phase": 2,
+      "title": "实现 LogViewer 日志查看器",
+      "description": "实现 LogViewer 实时日志流组件，支持自动滚动、日志级别过滤（ERROR/WARN/INFO/DEBUG）、关键字搜索高亮、导出功能（TXT/JSON），集成 WebSocket 实时日志推送",
+      "architecture_ref": "ui-analysis.md 核心组件详解 - 实时日志流",
+      "depends_on": ["UI013"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "LogViewer 自动滚动到最新日志条目",
+        "日志级别过滤：ERROR（红色）/WARN（黄色）/INFO（蓝色）/DEBUG（灰色），支持多选",
+        "关键字搜索框，匹配文字高亮显示",
+        "导出按钮：支持导出为 TXT 和 JSON 格式",
+        "日志条目显示时间戳、级别、来源、消息内容",
+        "集成 WebSocket LOG_ENTRY 事件实时追加日志",
+        "大量日志时使用虚拟滚动优化性能",
+        "等宽字体显示日志内容"
+      ]
+    },
+    {
+      "id": "UI015",
+      "phase": 2,
+      "title": "实现 WebSocket 实时通信集成",
+      "description": "将 WebSocket 实时通信集成到 Zustand Store 和组件中，实现任务状态实时更新、Agent 状态实时监控、日志实时推送、指标数据实时刷新，实现连接状态 UI 指示器",
+      "architecture_ref": "ui-analysis.md 交互特性 - 实时数据更新",
+      "depends_on": ["UI014"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "TASK_CREATED 事件触发 taskStore.addTask",
+        "TASK_UPDATED 事件触发 taskStore.updateTask",
+        "TASK_STATUS_CHANGED 事件触发任务状态更新和看板列移动",
+        "AGENT_STATUS_CHANGED 事件触发 agentStore.updateAgentStatus",
+        "LOG_ENTRY 事件触发日志追加到 LogViewer",
+        "METRICS_UPDATED 事件触发指标数据刷新",
+        "连接状态指示器：绿点=已连接、红点=断开、黄点=重连中",
+        "断线重连成功后自动拉取最新全量状态",
+        "Footer 显示 WebSocket 连接状态"
+      ]
+    },
+    {
+      "id": "UI016",
+      "phase": 2,
+      "title": "实现 Mock 数据与 API 对接",
+      "description": "定义 Mock 数据结构，使用 MSW (Mock Service Worker) 或静态 JSON 模拟后端 API，实现完整的 Mock 数据集（任务列表/Agent 列表/日志/指标），确保 UI 可脱离后端独立运行",
+      "architecture_ref": "ui-analysis.md 实施路线图 - Phase 2 Mock数据和API对接准备",
+      "depends_on": ["UI009"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Mock 数据包含至少 10 个不同状态/优先级的任务",
+        "Mock 数据包含至少 3 个 Agent 实例（不同健康状态）",
+        "Mock 日志数据包含 ERROR/WARN/INFO/DEBUG 各级别",
+        "Mock 指标数据包含任务统计/Token 用量/成本数据",
+        "MSW 拦截所有 API 请求并返回 Mock 数据",
+        "Mock WebSocket 模拟实时事件推送（定时发送状态变更事件）",
+        "UI 完全可脱离后端独立运行和演示",
+        "可通过环境变量切换 Mock/真实 API 模式"
+      ]
+    },
+    {
+      "id": "UI017",
+      "phase": 2,
+      "title": "Phase 2 集成验证",
+      "description": "验证 Phase 2 所有功能集成正常：看板拖拽流畅、任务卡片渲染正确、详情面板功能完善、WebSocket 连接稳定、Mock 数据或真实 API 对接成功",
+      "architecture_ref": "ui-analysis.md 实施路线图 - Phase 2 交付物清单",
+      "depends_on": ["UI015", "UI016"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "完整看板界面三列可拖拽，拖拽操作延迟 < 100ms",
+        "任务卡片信息渲染正确（优先级颜色/状态动画/进度条/标签）",
+        "详情面板展开/收起动画流畅，Tab 切换正常",
+        "LogViewer 日志级别过滤和搜索高亮正常",
+        "WebSocket 连接稳定，实时状态更新无延迟",
+        "断线重连在 5 秒内完成",
+        "Mock 数据模式下 UI 完整可用",
+        "npm run build 构建通过无报错"
+      ]
+    },
+    {
+      "id": "UI018",
+      "phase": 3,
+      "title": "实现 Dashboard 仪表板首页",
+      "description": "实现 Dashboard 仪表板首页，包含任务统计概览卡片（总数/进行中/已完成/失败）、最近活动时间线、Agent 负载分布图表、快捷操作入口",
+      "architecture_ref": "ui-analysis.md 实施路线图 - Phase 3 Dashboard 仪表板首页",
+      "depends_on": ["UI017"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "统计概览卡片：任务总数、进行中数量（蓝色）、已完成数量（绿色）、失败数量（红色），数字动态更新",
+        "最近活动时间线：显示最近 10 条事件（任务创建/状态变更/Agent 状态变更），时间戳 + 事件描述",
+        "Agent 负载分布图表：使用 Recharts 柱状图/饼图展示各 Agent 任务分配",
+        "快捷操作入口：新建任务按钮、查看所有任务、查看所有 Agent",
+        "Dashboard 数据通过 Store 订阅实现响应式更新",
+        "首屏加载时间 FCP < 1.5 秒"
+      ]
+    },
+    {
+      "id": "UI019",
+      "phase": 3,
+      "title": "实现图表组件库",
+      "description": "实现 charts/ 目录下所有图表组件：TaskStats（任务统计图）、AgentMetrics（Agent 指标图）、TimelineChart（时间线图表）、PieChart（饼图-状态分布），基于 Recharts 封装",
+      "architecture_ref": "ui-analysis.md 推荐项目结构 - components/charts/",
+      "depends_on": ["UI017"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "TaskStats 使用 Recharts BarChart 展示任务统计（按状态/优先级分组）",
+        "AgentMetrics 使用 Recharts LineChart 展示 Agent CPU/内存趋势",
+        "TimelineChart 使用 Recharts AreaChart 展示任务完成时间线",
+        "PieChart 使用 Recharts PieChart 展示任务状态分布（Pending/Running/Completed/Failed）",
+        "所有图表支持暗色主题配色",
+        "图表支持 Tooltip 悬停显示详细数据",
+        "图表支持响应式尺寸自适应",
+        "图表数据通过 props 传入，支持实时更新"
+      ]
+    },
+    {
+      "id": "UI020",
+      "phase": 3,
+      "title": "实现 Agents 管理页面",
+      "description": "实现 AgentsPage 页面，包含 Agent 列表（表格或卡片形式）、Agent 详情（健康状态/资源占用/历史任务）、Agent 操作（启停/重启/配置调整）",
+      "architecture_ref": "ui-analysis.md 实施路线图 - Phase 3 Agents 页面",
+      "depends_on": ["UI017"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Agent 列表以卡片形式展示，每张卡片显示 Agent 名称/状态/当前任务/资源占用",
+        "Agent 详情面板：健康状态指示灯、CPU 使用率进度条、内存占用数值、网络 I/O、历史任务列表",
+        "Agent 操作按钮：启动/停止/重启/配置",
+        "Agent 状态实时更新（通过 WebSocket）",
+        "Agent 列表支持按状态过滤（全部/空闲/忙碌/错误）",
+        "Agent 资源使用趋势图表（集成 AgentMetrics 组件）"
+      ]
+    },
+    {
+      "id": "UI021",
+      "phase": 3,
+      "title": "实现 Settings 系统设置页面",
+      "description": "实现 SettingsPage 页面，包含全局设置（默认权限模式/超时时间等）、通知设置（邮件/Webhook）、主题切换（暗色/亮色）、关于页面",
+      "architecture_ref": "ui-analysis.md 实施路线图 - Phase 3 Settings 页面",
+      "depends_on": ["UI017"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "全局设置：默认权限模式下拉选择（default/plan/auto/bypass）、超时时间输入框、最大重试次数、最大并发 Agent 数",
+        "通知设置：邮件通知开关和地址、Webhook URL 配置、告警规则开关",
+        "主题切换：暗色/亮色模式切换，实时预览，持久化到 localStorage",
+        "关于页面：系统版本、构建时间、开源许可信息",
+        "设置修改后自动保存到 settingsStore",
+        "表单验证（必填项/格式校验）使用 React Hook Form + Zod"
+      ]
+    },
+    {
+      "id": "UI022",
+      "phase": 3,
+      "title": "实现 Logs 日志中心页面",
+      "description": "实现 LogsPage 独立日志中心页面，支持全量日志浏览、高级过滤（级别/来源/时间范围/关键字）、日志导出、日志统计概览",
+      "architecture_ref": "ui-analysis.md 推荐项目结构 - pages/LogsPage.tsx",
+      "depends_on": ["UI014", "UI017"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "全量日志浏览，自动加载更多（无限滚动）",
+        "高级过滤面板：日志级别多选、来源筛选、时间范围选择器、关键字搜索",
+        "过滤条件可组合使用",
+        "日志导出：支持 TXT 和 JSON 格式",
+        "日志统计概览：各级别日志数量统计、最近错误摘要",
+        "日志条目点击可展开查看完整详情",
+        "集成 WebSocket 实时日志推送"
+      ]
+    },
+    {
+      "id": "UI023",
+      "phase": 3,
+      "title": "实现动画与过渡效果",
+      "description": "实现全局动画与过渡效果：面板展开/收起动画、任务状态变更动画、新任务出现动画（滑入+淡入）、删除任务动画（淡出+高度收缩）、加载骨架屏动画、页面切换过渡",
+      "architecture_ref": "ui-analysis.md 交互特性 - 动画与过渡",
+      "depends_on": ["UI017"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "面板展开/收起：transform: translateX() + opacity，时长 300ms ease-out",
+        "任务状态变更：背景色渐变 + 图标切换，时长 300ms",
+        "新任务出现：从上方滑入 + 淡入，时长 300ms ease-out",
+        "删除任务：淡出 + 高度收缩至 0，时长 300ms ease-in",
+        "加载状态：骨架屏脉冲动画（pulse）",
+        "页面切换过渡：淡入淡出效果",
+        "所有动画使用 CSS transition/animation 或 Framer Motion",
+        "动画性能优化：使用 transform/opacity 触发 GPU 加速，避免 layout thrashing"
+      ]
+    },
+    {
+      "id": "UI024",
+      "phase": 3,
+      "title": "实现键盘快捷键与无障碍访问",
+      "description": "完善键盘快捷键系统（Ctrl+N 新建/Ctrl+F 搜索/Space 开始暂停/Esc 关闭/方向键导航/Enter 查看/Delete 删除），实现 ARIA 属性、焦点管理、屏幕阅读器支持",
+      "architecture_ref": "ui-analysis.md 交互特性 - 键盘快捷键",
+      "depends_on": ["UI017"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Ctrl/Cmd+N：全局新建任务，弹出新建任务 Modal",
+        "Ctrl/Cmd+F：全局搜索任务，聚焦搜索框",
+        "Space：任务卡片聚焦时开始/暂停任务",
+        "Esc：关闭详情面板/取消操作/关闭 Modal",
+        "方向键：在看板任务卡片间导航",
+        "Enter：打开选中任务的详情面板",
+        "Delete：删除任务（弹出确认对话框）",
+        "所有交互元素支持 Tab 键聚焦",
+        "ARIA 标签：按钮/图标/状态指示器添加 aria-label",
+        "焦点管理：Modal 打开时聚焦到 Modal，关闭后恢复焦点"
+      ]
+    },
+    {
+      "id": "UI025",
+      "phase": 3,
+      "title": "性能优化与移动端适配",
+      "description": "实现性能优化：虚拟滚动（大量任务时）、图片懒加载、动画 GPU 加速、Bundle 分割和懒加载；完善移动端响应式适配：≤768px 单列布局、触摸手势支持",
+      "architecture_ref": "ui-analysis.md 实施路线图 - Phase 3 性能优化和体验提升，交互特性 - 响应式设计断点",
+      "depends_on": ["UI023", "UI024"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "虚拟滚动：任务列表超过 100 条时使用虚拟滚动（react-window 或 @tanstack/virtual）",
+        "路由懒加载：使用 React.lazy + Suspense 实现页面级代码分割",
+        "Bundle 优化：Vite 手动 chunk 分割，首屏 gzip 后 < 200KB",
+        "Lighthouse Performance Score > 90",
+        "可交互时间 TTI < 3 秒",
+        "≤768px：单列布局，隐藏侧边栏（汉堡菜单触发），隐藏详情面板（全屏查看）",
+        "769-1024px：侧边栏折叠为图标模式，详情面板覆盖式弹出",
+        "触摸手势：长按触发拖拽、左滑删除、下拉刷新",
+        "无 console.error/warning 生产残留"
+      ]
+    },
+    {
+      "id": "UI026",
+      "phase": 3,
+      "title": "Phase 3 集成验证与全系统验收",
+      "description": "验证 Phase 3 所有功能集成正常，执行全系统端到端验收测试：Dashboard 统计准确、Agent 管理完整、Settings 可用、性能达标、移动端可用、代码质量合格",
+      "architecture_ref": "ui-analysis.md 关键指标和验收标准",
+      "depends_on": ["UI018", "UI019", "UI020", "UI021", "UI022", "UI025"],
+      "status": "pending",
+      "acceptance_criteria": [
+        "Dashboard 统计数据准确，图表渲染正确",
+        "Agent 管理功能完整（列表/详情/操作）",
+        "Settings 页面所有设置项可修改并持久化",
+        "Logs 日志中心过滤和导出功能正常",
+        "首屏加载时间 FCP < 1.5 秒",
+        "可交互时间 TTI < 3 秒",
+        "Lighthouse Performance Score > 90",
+        "Bundle gzip 后首屏 < 200KB",
+        "WebSocket 重连时间 < 5 秒",
+        "拖拽操作延迟 < 100ms",
+        "TypeScript 严格模式无报错",
+        "ESLint 检查 0 errors, 0 warnings",
+        "Chrome/Edge >= 90、Firefox >= 88、Safari >= 14 兼容",
+        "1280x720 最低分辨率可用",
+        "npm run build 构建通过无报错"
+      ]
+    }
+  ]
+}

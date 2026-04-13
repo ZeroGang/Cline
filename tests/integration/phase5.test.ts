@@ -42,7 +42,7 @@ describe('Phase 5 Integration Tests', () => {
 
       const tool = registry.get('mcp_test-server_tool1')
       const result = await tool?.execute({ arg: 'value' })
-      expect(result).toEqual({ result: 'success' })
+      expect(result).toEqual({ output: '{"result":"success"}', error: false })
     })
 
     it('should handle multiple MCP servers', async () => {

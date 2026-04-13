@@ -137,16 +137,18 @@ describe('Builtin Tools', () => {
   describe('registerBuiltinTools', () => {
     it('should register all builtin tools', () => {
       registerBuiltinTools(registry)
-      expect(registry.size()).toBe(6)
+      expect(registry.size()).toBe(8)
       expect(registry.has('Read')).toBe(true)
       expect(registry.has('Glob')).toBe(true)
       expect(registry.has('Grep')).toBe(true)
       expect(registry.has('WebFetch')).toBe(true)
       expect(registry.has('WebSearch')).toBe(true)
       expect(registry.has('AskUserQuestion')).toBe(true)
+      expect(registry.has('Write')).toBe(true)
+      expect(registry.has('Edit')).toBe(true)
     })
 
-    it('should have all tools as read-only', () => {
+    it('should have correct number of read-only tools', () => {
       registerBuiltinTools(registry)
       const readOnly = registry.getReadOnly()
       expect(readOnly.length).toBe(6)

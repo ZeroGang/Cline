@@ -48,7 +48,7 @@ export class Sandbox {
 
   constructor(config: Partial<SandboxConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    this.logger = new Logger('Sandbox')
+    this.logger = new Logger({ source: 'Sandbox' })
   }
 
   canRead(path: string): SandboxCheckResult {

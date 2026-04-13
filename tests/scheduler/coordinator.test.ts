@@ -7,7 +7,7 @@ import type { AgentId } from '../../src/types.js'
 const createMockTask = (id: string, prompt: string = 'Test task'): Task => ({
   id,
   type: 'default',
-  priority: 'normal',
+  priority: 'medium',
   status: 'pending',
   prompt,
   dependencies: [],
@@ -205,7 +205,7 @@ describe('Coordinator', () => {
       const task: Task = {
         id: 'task-1',
         type: 'compound',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: '- Task part 1\n- Task part 2\n- Task part 3',
         dependencies: [],
@@ -222,7 +222,7 @@ describe('Coordinator', () => {
       const task: Task = {
         id: 'task-1',
         type: 'compound',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: '- Part 1\n- Part 2\n- Part 3',
         dependencies: [],

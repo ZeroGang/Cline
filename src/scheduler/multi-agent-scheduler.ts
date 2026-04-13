@@ -5,8 +5,6 @@ import { TaskQueue, createTaskQueue, createTask } from './queue.js'
 import { AgentPool, createAgentPool } from './pool.js'
 import { LoadBalancer, createLoadBalancer } from './loadbalancer.js'
 import { Coordinator, createCoordinator } from './coordinator.js'
-import { Store } from '../infrastructure/state/store.js'
-import { DEFAULT_APP_STATE } from '../infrastructure/state/index.js'
 import { Logger } from '../infrastructure/logging/logger.js'
 
 export interface MultiAgentSchedulerConfig {
@@ -29,9 +27,7 @@ export class MultiAgentScheduler {
   private agentPool: AgentPool
   private loadBalancer: LoadBalancer
   private coordinator: Coordinator
-  private store: Store<typeof DEFAULT_APP_STATE>
   private logger: Logger
-  private deps: QueryDeps
   private agentDefinition: AgentDefinition
   private running = false
   private eventHandlers: Map<string, ((event: AgentEvent) => void)[]> = new Map()
@@ -43,9 +39,7 @@ export class MultiAgentScheduler {
     deps: QueryDeps
   ) {
     this.taskQueue = createTaskQueue(config.taskQueueConfig)
-    this.store = new Store(DEFAULT_APP_STATE)
-    this.logger = new Logger('MultiAgentScheduler')
-    this.deps = deps
+    this.logger = new Logger({ source: 'MultiAgentScheduler' })
     this.agentDefinition = config.agentDefinition
 
     this.agentPool = createAgentPool({
@@ -107,7 +101,7 @@ export class MultiAgentScheduler {
     const task: Task = {
       id: taskId,
       type: 'compound',
-      priority: options?.priority || 'normal',
+      priority: options?.priority || 'medium',
       status: 'pending',
       prompt,
       dependencies: options?.dependencies || [],

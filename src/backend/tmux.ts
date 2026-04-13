@@ -14,7 +14,7 @@ export class TmuxBackend implements AgentBackend {
   private available: boolean = false
 
   constructor() {
-    this.logger = new Logger('TmuxBackend')
+    this.logger = new Logger({ source: 'TmuxBackend' })
     this.checkAvailability()
   }
 

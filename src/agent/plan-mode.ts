@@ -1,4 +1,4 @@
-import type { Tool, ToolResult } from '../tools/index.js'
+import type { ToolResult } from '../tools/index.js'
 import { Logger } from '../infrastructure/logging/logger.js'
 
 export interface PlanStep {
@@ -45,7 +45,7 @@ export class PlanModeManager {
 
   constructor(config: Partial<PlanModeConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    this.logger = new Logger('PlanModeManager')
+    this.logger = new Logger({ source: 'PlanModeManager' })
   }
 
   createPlan(title: string, description: string): Plan {

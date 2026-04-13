@@ -1,5 +1,4 @@
 import { Logger } from '../infrastructure/logging/logger.js'
-import { EventEmitter, type SchedulerEventMap } from './events.js'
 import { MetricsCollector } from './metrics.js'
 
 export type AlertSeverity = 'info' | 'warning' | 'critical'
@@ -61,7 +60,7 @@ export class AlertManager {
 
   constructor(config: Partial<AlertManagerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    this.logger = new Logger('AlertManager')
+    this.logger = new Logger({ source: 'AlertManager' })
   }
 
   registerRule(rule: AlertRule): void {
@@ -266,6 +265,11 @@ export class HighErrorRateRule implements AlertRule {
   ) {
     this.metricsCollector = metricsCollector
     this.threshold = threshold
+    this.windowMs = windowMs
+  }
+
+  getWindowMs(): number {
+    return this.windowMs
   }
 
   evaluate(): AlertEvaluationResult {

@@ -30,7 +30,7 @@ export class CircuitBreaker {
     config: Partial<CircuitBreakerConfig> = {}
   ) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    this.logger = new Logger(`CircuitBreaker:${name}`)
+    this.logger = new Logger({ source: `CircuitBreaker:${name}` })
   }
 
   async execute<T>(operation: () => Promise<T>): Promise<T> {
@@ -146,7 +146,7 @@ export class CircuitBreakerManager {
   private logger: Logger
 
   constructor() {
-    this.logger = new Logger('CircuitBreakerManager')
+    this.logger = new Logger({ source: 'CircuitBreakerManager' })
   }
 
   getBreaker(

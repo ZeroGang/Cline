@@ -1,9 +1,8 @@
 import type { AgentId } from '../types.js'
 import { AgentInstanceImpl } from '../agent/instance.js'
 import type { AgentPoolConfig } from './types.js'
-import type { QueryDeps } from '../agent/context.js'
+import type { QueryDeps, AgentDefinition } from '../agent/types.js'
 import { Logger } from '../infrastructure/logging/logger.js'
-import { Store, DEFAULT_APP_STATE } from '../infrastructure/state/index.js'
 
 interface PooledAgent {
   instance: AgentInstanceImpl
@@ -16,15 +15,20 @@ export class AgentPool {
   private config: AgentPoolConfig
   private deps: QueryDeps
   private logger: Logger
-  private store: Store<typeof DEFAULT_APP_STATE>
   private shrinkTimer: NodeJS.Timeout | null = null
   private initialized = false
+  private agentDefinition: AgentDefinition
 
-  constructor(config: AgentPoolConfig, deps: QueryDeps) {
+  constructor(config: AgentPoolConfig, deps: QueryDeps, agentDefinition?: AgentDefinition) {
     this.config = config
     this.deps = deps
-    this.logger = new Logger('AgentPool')
-    this.store = new Store(DEFAULT_APP_STATE)
+    this.logger = new Logger({ source: 'AgentPool' })
+    this.agentDefinition = agentDefinition || {
+      agentType: 'default',
+      permissionMode: 'default',
+      isolation: 'shared',
+      background: false
+    }
   }
 
   async initialize(): Promise<void> {
@@ -57,7 +61,7 @@ export class AgentPool {
 
     let availableAgent: PooledAgent | undefined
 
-    for (const [id, agent] of this.pool) {
+    for (const [, agent] of this.pool) {
       if (!agent.inUse && agent.instance.status === 'idle') {
         availableAgent = agent
         break
@@ -181,11 +185,9 @@ export class AgentPool {
 
     const instance = new AgentInstanceImpl(
       agentId,
-      this.deps,
-      {
-        maxTurns: this.config.maxTurnsPerAgent,
-        timeout: this.config.agentTimeout
-      }
+      this.agentDefinition,
+      {} as any,
+      this.deps
     )
 
     this.pool.set(agentId, {
@@ -228,6 +230,6 @@ export class AgentPool {
   }
 }
 
-export function createAgentPool(config: AgentPoolConfig, deps: QueryDeps): AgentPool {
-  return new AgentPool(config, deps)
+export function createAgentPool(config: AgentPoolConfig, deps: QueryDeps, agentDefinition?: AgentDefinition): AgentPool {
+  return new AgentPool(config, deps, agentDefinition)
 }

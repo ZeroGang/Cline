@@ -47,7 +47,7 @@ function createTestTask(prompt: string): Task {
   return {
     id: 'task-1',
     type: 'test',
-    priority: 'normal',
+    priority: 'medium',
     status: 'pending',
     prompt,
     dependencies: [],

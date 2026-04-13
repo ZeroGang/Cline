@@ -48,7 +48,7 @@ export class ApiServer {
 
   constructor(config: Partial<ApiServerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    this.logger = new Logger('ApiServer')
+    this.logger = new Logger({ source: 'ApiServer' })
   }
 
   use(middleware: Middleware): void {
@@ -88,12 +88,13 @@ export class ApiServer {
     }
 
     if (route.roles && route.roles.length > 0) {
-      if (!req.user || !route.roles.some(role => req.user.roles.includes(role))) {
+      const user = req.user
+      if (!user || !route.roles.some(role => user.roles.includes(role))) {
         return this.errorResponse(403, 'Forbidden')
       }
     }
 
-    const handlers = [...this.middleware, ...(route.middleware || []), route.handler]
+    const handlers: RouteHandler[] = [...this.middleware.map(m => (req: ApiRequest) => m(req, async () => this.errorResponse(500, 'Middleware chain broken'))), ...(route.middleware?.map(m => (req: ApiRequest) => m(req, async () => this.errorResponse(500, 'Middleware chain broken'))) || []), route.handler]
     
     return this.executeMiddlewareChain(req, handlers)
   }
@@ -125,9 +126,12 @@ export class ApiServer {
       }
 
       const handler = handlers[index++]
+      if (!handler) {
+        return this.errorResponse(500, 'Handler not found')
+      }
       
       if (index < handlers.length) {
-        return handler(req, next)
+        return handler(req)
       }
       
       return handler(req)

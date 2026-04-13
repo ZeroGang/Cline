@@ -35,7 +35,7 @@ describe('TaskQueue', () => {
     it('should sort by priority', () => {
       const lowTask = createTask('task-1', 'Low task', { priority: 'low' })
       const highTask = createTask('task-2', 'High task', { priority: 'high' })
-      const normalTask = createTask('task-3', 'Normal task', { priority: 'normal' })
+      const normalTask = createTask('task-3', 'Normal task', { priority: 'medium' })
 
       queue.enqueue(lowTask)
       queue.enqueue(highTask)
@@ -48,8 +48,8 @@ describe('TaskQueue', () => {
     })
 
     it('should sort by creation time when priority is same', () => {
-      const task1 = createTask('task-1', 'Task 1', { priority: 'normal' })
-      const task2 = createTask('task-2', 'Task 2', { priority: 'normal' })
+      const task1 = createTask('task-1', 'Task 1', { priority: 'medium' })
+      const task2 = createTask('task-2', 'Task 2', { priority: 'medium' })
 
       queue.enqueue(task1)
       queue.enqueue(task2)
@@ -277,7 +277,7 @@ describe('createTask', () => {
     expect(task.id).toBe('task-1')
     expect(task.prompt).toBe('Test task')
     expect(task.type).toBe('default')
-    expect(task.priority).toBe('normal')
+    expect(task.priority).toBe('medium')
     expect(task.status).toBe('pending')
     expect(task.dependencies).toEqual([])
     expect(task.retryCount).toBe(0)
@@ -311,7 +311,7 @@ describe('Priority Management', () => {
 
   describe('updatePriority', () => {
     it('should update priority of pending task', () => {
-      queue.enqueue(createTask('task-1', 'Task 1', { priority: 'normal' }))
+      queue.enqueue(createTask('task-1', 'Task 1', { priority: 'medium' }))
       queue.updatePriority('task-1', 'high')
 
       const task = queue.getTask('task-1')
@@ -320,7 +320,7 @@ describe('Priority Management', () => {
 
     it('should re-sort queue after priority update', () => {
       queue.enqueue(createTask('task-1', 'Task 1', { priority: 'low' }))
-      queue.enqueue(createTask('task-2', 'Task 2', { priority: 'normal' }))
+      queue.enqueue(createTask('task-2', 'Task 2', { priority: 'medium' }))
 
       queue.updatePriority('task-1', 'high')
 
@@ -358,7 +358,7 @@ describe('Priority Management', () => {
     it('should return tasks by priority', () => {
       queue.enqueue(createTask('task-1', 'Task 1', { priority: 'high' }))
       queue.enqueue(createTask('task-2', 'Task 2', { priority: 'high' }))
-      queue.enqueue(createTask('task-3', 'Task 3', { priority: 'normal' }))
+      queue.enqueue(createTask('task-3', 'Task 3', { priority: 'medium' }))
 
       const highPriorityTasks = queue.getTasksByPriority('high')
       expect(highPriorityTasks).toHaveLength(2)
@@ -384,7 +384,7 @@ describe('Priority Management', () => {
     it('should return priority statistics', () => {
       queue.enqueue(createTask('task-1', 'Task 1', { priority: 'high' }))
       queue.enqueue(createTask('task-2', 'Task 2', { priority: 'high' }))
-      queue.enqueue(createTask('task-3', 'Task 3', { priority: 'normal' }))
+      queue.enqueue(createTask('task-3', 'Task 3', { priority: 'medium' }))
       queue.enqueue(createTask('task-4', 'Task 4', { priority: 'low' }))
 
       queue.dequeue()
@@ -396,7 +396,7 @@ describe('Priority Management', () => {
       expect(stats.high.running).toBe(0)
       expect(stats.high.completed).toBe(1)
 
-      expect(stats.normal.pending).toBe(1)
+      expect(stats.medium.pending).toBe(1)
       expect(stats.low.pending).toBe(1)
     })
 
@@ -404,7 +404,7 @@ describe('Priority Management', () => {
       const stats = queue.getPriorityStats()
 
       expect(stats.high.pending).toBe(0)
-      expect(stats.normal.pending).toBe(0)
+      expect(stats.medium.pending).toBe(0)
       expect(stats.low.pending).toBe(0)
     })
   })

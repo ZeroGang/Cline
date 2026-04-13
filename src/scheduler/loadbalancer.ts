@@ -28,7 +28,7 @@ export class RoundRobinStrategy implements LoadBalanceStrategy {
 
     this.currentIndex = (this.currentIndex + 1) % availableAgents.length
 
-    return tasks[0]
+    return tasks[0] ?? null
   }
 
   selectAgent(agents: AgentInfo[]): AgentId | null {
@@ -42,7 +42,7 @@ export class RoundRobinStrategy implements LoadBalanceStrategy {
     }
 
     this.currentIndex = (this.currentIndex + 1) % availableAgents.length
-    return availableAgents[this.currentIndex].id
+    return availableAgents[this.currentIndex]?.id ?? null
   }
 
   reset(): void {
@@ -67,7 +67,7 @@ export class LeastLoadedStrategy implements LoadBalanceStrategy {
       return null
     }
 
-    return tasks[0]
+    return tasks[0] ?? null
   }
 
   selectAgent(agents: AgentInfo[]): AgentId | null {
@@ -82,7 +82,7 @@ export class LeastLoadedStrategy implements LoadBalanceStrategy {
 
     availableAgents.sort((a, b) => a.taskCount - b.taskCount)
 
-    return availableAgents[0].id
+    return availableAgents[0]?.id ?? null
   }
 }
 
@@ -104,16 +104,17 @@ export class PriorityBasedStrategy implements LoadBalanceStrategy {
     }
 
     const priorityOrder: Record<string, number> = {
+      critical: 4,
       high: 3,
-      normal: 2,
+      medium: 2,
       low: 1
     }
 
     const sortedTasks = [...tasks].sort((a, b) => {
-      return priorityOrder[b.priority] - priorityOrder[a.priority]
+      return (priorityOrder[b.priority] ?? 0) - (priorityOrder[a.priority] ?? 0)
     })
 
-    return sortedTasks[0]
+    return sortedTasks[0] ?? null
   }
 
   selectAgent(agents: AgentInfo[]): AgentId | null {
@@ -126,7 +127,7 @@ export class PriorityBasedStrategy implements LoadBalanceStrategy {
       return null
     }
 
-    return availableAgents[0].id
+    return availableAgents[0]?.id ?? null
   }
 }
 
@@ -203,7 +204,7 @@ export class LoadBalancer {
       return null
     }
 
-    return availableAgents[0].id
+    return availableAgents[0]?.id ?? null
   }
 
   assign(tasks: Task[], agents: AgentInfo[]): { task: Task; agent: AgentId } | null {

@@ -9,7 +9,7 @@ import {
 import type { Task } from '../../src/scheduler/types.js'
 import type { AgentId } from '../../src/types.js'
 
-const createMockTask = (id: string, priority: 'high' | 'normal' | 'low' = 'normal'): Task => ({
+const createMockTask = (id: string, priority: 'high' | 'medium' | 'low' = 'medium'): Task => ({
   id,
   type: 'default',
   priority,
@@ -147,7 +147,7 @@ describe('PriorityBasedStrategy', () => {
       const tasks = [
         createMockTask('task-1', 'low'),
         createMockTask('task-2', 'high'),
-        createMockTask('task-3', 'normal')
+        createMockTask('task-3', 'medium')
       ]
       const agents = [createMockAgent('agent-1')]
 

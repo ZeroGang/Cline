@@ -1,8 +1,8 @@
 import http from 'http'
 import { WebSocketServer, WebSocket } from 'ws'
 import { Logger } from '../infrastructure/logging/logger.js'
-import { EventEmitter, type SchedulerEventMap, type AgentEventMap } from '../monitoring/events.js'
-import { AgentMonitor, type AgentStatus, type SchedulerStatus } from '../monitoring/monitor.js'
+import { EventEmitter, type SchedulerEventMap } from '../monitoring/events.js'
+import { AgentMonitor } from '../monitoring/monitor.js'
 import { MetricsCollector } from '../monitoring/metrics.js'
 import { AlertManager } from '../monitoring/alerts.js'
 
@@ -35,7 +35,7 @@ export class MonitorServer {
     config: Partial<MonitorServerConfig> = {}
   ) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    this.logger = new Logger('MonitorServer')
+    this.logger = new Logger({ source: 'MonitorServer' })
     this.schedulerEmitter = schedulerEmitter
     this.agentMonitor = agentMonitor
     this.metricsCollector = metricsCollector

@@ -15,7 +15,7 @@ describe('DependencyResolver', () => {
       const task: Task = {
         id: 'task-1',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task',
         dependencies: [],
@@ -34,7 +34,7 @@ describe('DependencyResolver', () => {
       const task1: Task = {
         id: 'task-1',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task 1',
         dependencies: [],
@@ -46,7 +46,7 @@ describe('DependencyResolver', () => {
       const task2: Task = {
         id: 'task-2',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task 2',
         dependencies: ['task-1'],
@@ -66,7 +66,7 @@ describe('DependencyResolver', () => {
       const task1: Task = {
         id: 'task-1',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task 1',
         dependencies: ['task-2'],
@@ -78,7 +78,7 @@ describe('DependencyResolver', () => {
       const task2: Task = {
         id: 'task-2',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task 2',
         dependencies: ['task-1'],
@@ -98,7 +98,7 @@ describe('DependencyResolver', () => {
       const task1: Task = {
         id: 'task-1',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task 1',
         dependencies: ['task-3'],
@@ -110,7 +110,7 @@ describe('DependencyResolver', () => {
       const task2: Task = {
         id: 'task-2',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task 2',
         dependencies: ['task-1'],
@@ -122,7 +122,7 @@ describe('DependencyResolver', () => {
       const task3: Task = {
         id: 'task-3',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task 3',
         dependencies: ['task-2'],
@@ -145,7 +145,7 @@ describe('DependencyResolver', () => {
       const task: Task = {
         id: 'task-1',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task',
         dependencies: [],
@@ -162,7 +162,7 @@ describe('DependencyResolver', () => {
       const task: Task = {
         id: 'task-2',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task',
         dependencies: ['task-1'],
@@ -179,7 +179,7 @@ describe('DependencyResolver', () => {
       const task: Task = {
         id: 'task-2',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task',
         dependencies: ['task-1', 'task-0'],
@@ -196,7 +196,7 @@ describe('DependencyResolver', () => {
       const task: Task = {
         id: 'task-3',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task',
         dependencies: ['task-1', 'task-2'],
@@ -215,7 +215,7 @@ describe('DependencyResolver', () => {
       const task1: Task = {
         id: 'task-1',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task 1',
         dependencies: [],
@@ -227,7 +227,7 @@ describe('DependencyResolver', () => {
       const task2: Task = {
         id: 'task-2',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task 2',
         dependencies: ['task-1'],
@@ -239,7 +239,7 @@ describe('DependencyResolver', () => {
       const task3: Task = {
         id: 'task-3',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task 3',
         dependencies: ['task-2'],
@@ -261,7 +261,7 @@ describe('DependencyResolver', () => {
       const task: Task = {
         id: 'task-2',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task',
         dependencies: ['task-1'],
@@ -281,7 +281,7 @@ describe('DependencyResolver', () => {
       const task: Task = {
         id: 'task-3',
         type: 'default',
-        priority: 'normal',
+        priority: 'medium',
         status: 'pending',
         prompt: 'Test task',
         dependencies: ['task-1', 'task-2'],

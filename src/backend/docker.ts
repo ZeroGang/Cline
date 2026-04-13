@@ -1,3 +1,4 @@
+import { spawn } from 'child_process'
 import { Logger } from '../infrastructure/logging/logger.js'
 import type { AgentBackend, AgentSpawnConfig, AgentMessage } from './types.js'
 import type { BackendType, AgentEvent } from '../scheduler/types.js'
@@ -47,7 +48,7 @@ export class DockerBackend implements AgentBackend {
 
   constructor(config: Partial<DockerBackendConfig> = {}) {
     this.config = { ...DEFAULT_DOCKER_CONFIG, ...config }
-    this.logger = new Logger('DockerBackend')
+    this.logger = new Logger({ source: 'DockerBackend' })
   }
 
   async isAvailable(): Promise<boolean> {
@@ -236,7 +237,7 @@ export class DockerBackend implements AgentBackend {
               yield {
                 type: 'log',
                 agentId,
-                timestamp: new Date(),
+                timestamp: Date.now(),
                 data: { message: line }
               } as AgentEvent
             }
@@ -296,37 +297,27 @@ export class DockerBackend implements AgentBackend {
 
   private async executeDocker(args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
     return new Promise((resolve) => {
-      const proc = Bun.spawn([this.config.dockerPath!, ...args], {
-        stdout: 'pipe',
-        stderr: 'pipe'
+      const proc = spawn(this.config.dockerPath!, args, {
+        stdio: ['ignore', 'pipe', 'pipe']
       })
 
       let stdout = ''
       let stderr = ''
 
-      const stdoutReader = proc.stdout.getReader()
-      const stderrReader = proc.stderr.getReader()
+      proc.on('error', (error) => {
+        resolve({ exitCode: 1, stdout: '', stderr: error.message })
+      })
 
-      const readStdout = async (): Promise<void> => {
-        const { done, value } = await stdoutReader.read()
-        if (!done) {
-          stdout += new TextDecoder().decode(value)
-          return readStdout()
-        }
-      }
+      proc.stdout.on('data', (data) => {
+        stdout += data.toString()
+      })
 
-      const readStderr = async (): Promise<void> => {
-        const { done, value } = await stderrReader.read()
-        if (!done) {
-          stderr += new TextDecoder().decode(value)
-          return readStderr()
-        }
-      }
+      proc.stderr.on('data', (data) => {
+        stderr += data.toString()
+      })
 
-      Promise.all([readStdout(), readStderr()]).then(() => {
-        proc.exited.then((code) => {
-          resolve({ exitCode: code, stdout, stderr })
-        })
+      proc.on('close', (code) => {
+        resolve({ exitCode: code ?? 0, stdout, stderr })
       })
     })
   }

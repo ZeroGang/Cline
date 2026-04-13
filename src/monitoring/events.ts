@@ -13,6 +13,7 @@ export interface SchedulerEventMap {
   'agent:error': { agentId: string; error: string; timestamp: Date }
   'pool:scaled': { size: number; reason: string; timestamp: Date }
   'loadbalance:changed': { strategy: string; timestamp: Date }
+  [key: string]: unknown
 }
 
 export interface AgentEventMap {
@@ -24,6 +25,7 @@ export interface AgentEventMap {
   'permission:changed': { mode: string; reason: string; timestamp: Date }
   'abort:requested': { reason: string; timestamp: Date }
   'error:occurred': { type: string; message: string; recoverable: boolean; timestamp: Date }
+  [key: string]: unknown
 }
 
 export type SchedulerEvent = {

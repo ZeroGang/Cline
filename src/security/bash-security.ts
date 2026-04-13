@@ -117,7 +117,7 @@ export class BashSecurityChain {
 
   constructor(config: Partial<BashSecurityConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
-    this.logger = new Logger('BashSecurityChain')
+    this.logger = new Logger({ source: 'BashSecurityChain' })
   }
 
   parseForSecurity(command: string): ParsedCommand[] {
@@ -192,7 +192,7 @@ export class BashSecurityChain {
 
   private assessRiskLevel(
     cmd: string,
-    args: string[],
+    _args: string[],
     fullCommand: string
   ): 'low' | 'medium' | 'high' {
     for (const pattern of this.config.highRiskPatterns) {

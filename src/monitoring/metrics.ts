@@ -128,7 +128,7 @@ export class MetricsCollector {
   private histograms: Map<string, Histogram> = new Map()
 
   constructor() {
-    this.logger = new Logger('MetricsCollector')
+    this.logger = new Logger({ source: 'MetricsCollector' })
   }
 
   createCounter(name: string, labels?: Record<string, string>): Counter {
@@ -191,7 +191,7 @@ export class MetricsCollector {
     const values: MetricValue[] = []
     const timestamp = new Date()
 
-    for (const [key, counter] of this.counters) {
+    for (const [_key, counter] of this.counters) {
       values.push({
         name: counter.name,
         value: counter.value,
@@ -200,7 +200,7 @@ export class MetricsCollector {
       })
     }
 
-    for (const [key, gauge] of this.gauges) {
+    for (const [_key, gauge] of this.gauges) {
       values.push({
         name: gauge.name,
         value: gauge.value,
@@ -209,7 +209,7 @@ export class MetricsCollector {
       })
     }
 
-    for (const [key, histogram] of this.histograms) {
+    for (const [_key, histogram] of this.histograms) {
       values.push({
         name: `${histogram.name}_sum`,
         value: histogram.sum,
@@ -278,7 +278,7 @@ export class CostTracker {
   private totalOutputTokens: number = 0
 
   constructor(pricing?: Record<string, ModelPricing>) {
-    this.logger = new Logger('CostTracker')
+    this.logger = new Logger({ source: 'CostTracker' })
     this.pricing = pricing || DEFAULT_PRICING
   }
 
@@ -323,9 +323,10 @@ export class CostTracker {
       if (!result[entry.model]) {
         result[entry.model] = { cost: 0, inputTokens: 0, outputTokens: 0 }
       }
-      result[entry.model].cost += entry.cost
-      result[entry.model].inputTokens += entry.inputTokens
-      result[entry.model].outputTokens += entry.outputTokens
+      const modelStats = result[entry.model]!
+      modelStats.cost += entry.cost
+      modelStats.inputTokens += entry.inputTokens
+      modelStats.outputTokens += entry.outputTokens
     }
 
     return result
@@ -358,7 +359,7 @@ export class PerformanceTracker {
   private completedCheckpoints: PerformanceCheckpoint[] = []
 
   constructor() {
-    this.logger = new Logger('PerformanceTracker')
+    this.logger = new Logger({ source: 'PerformanceTracker' })
   }
 
   startCheckpoint(name: string, metadata?: Record<string, unknown>): void {
