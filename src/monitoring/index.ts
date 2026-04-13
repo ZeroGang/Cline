@@ -51,3 +51,9 @@ export {
   type AlertEvaluationResult,
   type AlertManagerConfig
 } from './alerts.js'
+
+export {
+  MonitorServer,
+  createMonitorServer,
+  type MonitorServerConfig
+} from './server.js'

@@ -544,7 +544,7 @@
       "description": "使用 React 实现监控 UI：Dashboard 主面板、TaskView 任务详情、AgentMonitor Agent 监控、LogViewer 日志查看、Settings 配置管理",
       "architecture_ref": "§3.1 监控 UI 层",
       "depends_on": ["T031", "T032", "T033"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Dashboard 展示任务/Agent/指标概览",
         "TaskView 展示任务详情和执行日志",

@@ -2,6 +2,38 @@
 
 ---
 
+## 2026-04-13 - Task: T034 实现监控 UI 层
+
+### What was done:
+- 实现 MonitorServer 类，提供 HTTP 和 WebSocket 服务
+- 实现 Dashboard 主面板，展示调度器状态、Agent 列表、告警、事件日志
+- 实现 HTTP API 端点：
+  - GET / - Dashboard HTML 页面
+  - GET /api/status - 调度器状态
+  - GET /api/agents - Agent 列表
+  - GET /api/metrics - 指标数据
+  - GET /api/alerts - 告警列表
+- 实现 WebSocket 实时通信：
+  - 连接时发送初始状态
+  - 广播调度器和 Agent 事件
+- 实现前端 JavaScript 逻辑：
+  - 自动重连机制
+  - 实时状态更新
+  - 响应式 UI 渲染
+
+### Testing:
+- 创建 tests/monitoring/server.test.ts 单元测试
+- 测试覆盖：HTTP 端点、WebSocket 连接、事件广播、生命周期
+- 运行 `npx vitest run tests/monitoring/server.test.ts` 全部 12 个测试通过
+
+### Notes:
+- 使用原生 HTML + JavaScript 实现监控界面，避免引入复杂的前端构建流程
+- WebSocket 实现实时通信，支持自动重连
+- Dashboard 包含调度器状态、Agent 列表、告警、事件日志四个面板
+- 支持通过 HTTP API 查询状态数据
+
+---
+
 ## 2026-04-13 - Task: T033 实现告警系统
 
 ### What was done:
