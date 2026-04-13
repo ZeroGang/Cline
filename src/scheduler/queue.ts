@@ -1,5 +1,6 @@
 import type { Task, TaskQueueConfig } from './types.js'
 import type { TaskId, TaskPriority, TaskStatus } from '../types.js'
+import { DependencyResolver, createDependencyResolver } from './dependency.js'
 
 const DEFAULT_QUEUE_CONFIG: TaskQueueConfig = {
   maxConcurrent: 10,
@@ -17,9 +18,11 @@ export class TaskQueue {
   private running: Map<TaskId, Task> = new Map()
   private completed: Map<TaskId, Task> = new Map()
   private config: TaskQueueConfig
+  private dependencyResolver: DependencyResolver
 
   constructor(config: Partial<TaskQueueConfig> = {}) {
     this.config = { ...DEFAULT_QUEUE_CONFIG, ...config }
+    this.dependencyResolver = createDependencyResolver()
   }
 
   enqueue(task: Task): void {
@@ -29,6 +32,11 @@ export class TaskQueue {
 
     if (this.running.has(task.id)) {
       throw new Error(`Task ${task.id} is already running`)
+    }
+
+    const taskMap = this.getAllTasksMap()
+    if (this.dependencyResolver.hasCircularDependency(task, taskMap)) {
+      throw new Error(`Task ${task.id} has circular dependencies`)
     }
 
     const newTask: Task = {
@@ -50,19 +58,28 @@ export class TaskQueue {
       return null
     }
 
-    const task = this.queue.shift()
-    if (!task) {
-      return null
+    const completedIds = new Set<TaskId>(this.completed.keys())
+
+    for (let i = 0; i < this.queue.length; i++) {
+      const task = this.queue[i]
+
+      if (!this.dependencyResolver.areDependenciesMet(task, completedIds)) {
+        continue
+      }
+
+      this.queue.splice(i, 1)
+
+      const runningTask: Task = {
+        ...task,
+        status: 'running',
+        startedAt: Date.now()
+      }
+
+      this.running.set(task.id, runningTask)
+      return runningTask
     }
 
-    const runningTask: Task = {
-      ...task,
-      status: 'running',
-      startedAt: Date.now()
-    }
-
-    this.running.set(task.id, runningTask)
-    return runningTask
+    return null
   }
 
   complete(taskId: TaskId, result?: unknown): void {
@@ -258,6 +275,24 @@ export class TaskQueue {
     }
 
     return stats
+  }
+
+  getAllTasksMap(): Map<TaskId, Task> {
+    const taskMap = new Map<TaskId, Task>()
+
+    for (const task of this.queue) {
+      taskMap.set(task.id, task)
+    }
+
+    for (const [id, task] of this.running) {
+      taskMap.set(id, task)
+    }
+
+    for (const [id, task] of this.completed) {
+      taskMap.set(id, task)
+    }
+
+    return taskMap
   }
 
   private sortQueue(): void {

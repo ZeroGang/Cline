@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-04-13 - Task: T019 实现任务依赖管理
+
+### What was done:
+- 实现 DependencyResolver 类，支持循环依赖检测
+- 实现 hasCircularDependency 方法，使用 DFS 检测循环
+- 实现 areDependenciesMet 方法，检查依赖是否满足
+- 实现 getExecutionOrder 方法，拓扑排序获取执行顺序
+- 实现 getDependencies 和 getDependents 方法
+- 实现 findMissingDependencies 方法，查找缺失的依赖
+- 更新 TaskQueue 的 enqueue 方法，检测循环依赖
+- 更新 TaskQueue 的 dequeue 方法，跳过未满足依赖的任务
+- 添加 getAllTasksMap 方法，获取所有任务的 Map
+
+### Testing:
+- 创建 tests/scheduler/dependency.test.ts 单元测试
+- 测试覆盖：循环依赖检测、依赖满足检查、执行顺序、缺失依赖查找
+- 测试 TaskQueue 集成：带依赖的入队、出队、优先级处理
+- 运行 `npx vitest run tests/scheduler/dependency.test.ts` 全部 17 个测试通过
+
+### Notes:
+- 循环依赖检测使用 DFS 和递归栈
+- dequeue 时遍历队列，跳过依赖未满足的任务
+- 依赖满足条件：所有依赖任务都在 completed 集合中
+- 拓扑排序确保依赖任务先于被依赖任务执行
+
+---
+
 ## 2026-04-13 - Task: T018 实现任务优先级队列
 
 ### What was done:

@@ -281,7 +281,7 @@
       "description": "扩展 TaskQueue 支持优先级排序，实现多优先级队列管理，高优先级任务优先调度",
       "architecture_ref": "§6.2 任务队列设计",
       "depends_on": ["T015"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "TaskQueue 支持按优先级排序",
         "高优先级任务优先出队",
