@@ -89,8 +89,15 @@ async function* agentLoop(
   context: AgentContext,
   config: AgentLoopConfig
 ): AsyncGenerator<AgentEvent> {
+  const boot: Message[] = []
+  const sys = config.definition.systemPrompt?.trim()
+  if (sys) {
+    boot.push({ role: 'system', content: sys })
+  }
+  boot.push({ role: 'user', content: task.prompt })
+
   const state: AgentLoopState = {
-    messages: [{ role: 'user', content: task.prompt }],
+    messages: boot,
     turn: 0,
     maxTurns: config.maxTurns || 100,
     aborted: false,

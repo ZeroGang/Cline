@@ -10,6 +10,8 @@ export interface AgentStatus {
   totalTokens: number
   totalCost: number
   errorCount: number
+  displayName?: string
+  avatar?: string
 }
 
 export interface SchedulerStatus {

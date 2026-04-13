@@ -1,28 +1,19 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { AppLayout } from '@/components/layout/AppLayout'
-import DashboardPage from '@/pages/DashboardPage'
-import TasksPage from '@/pages/TasksPage'
-import AgentsPage from '@/pages/AgentsPage'
-import LogsPage from '@/pages/LogsPage'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { ThemeProvider } from '@/context/ThemeContext'
+import { I18nProvider } from '@/context/I18nContext'
+import OfficePage from '@/pages/OfficePage'
 import SettingsPage from '@/pages/SettingsPage'
-import NotFoundPage from '@/pages/NotFoundPage'
 
-function App() {
+export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/tasks" element={<TasksPage />} />
-          <Route path="/agents" element={<AgentsPage />} />
-          <Route path="/logs" element={<LogsPage />} />
+    <ThemeProvider>
+      <I18nProvider>
+        <Routes>
+          <Route path="/" element={<OfficePage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </I18nProvider>
+    </ThemeProvider>
   )
 }
-
-export default App

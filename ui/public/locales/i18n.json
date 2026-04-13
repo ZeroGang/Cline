@@ -1,0 +1,190 @@
+{
+  "loading": {
+    "cn": "加载中…",
+    "en": "Loading…"
+  },
+  "officeTitle": {
+    "cn": "Cline",
+    "en": "Cline"
+  },
+  "updated": {
+    "cn": "更新于 ",
+    "en": "Updated "
+  },
+  "officeSub": {
+    "cn": "Agent 任务看板（对接 /api/tasks）",
+    "en": "Agent task board (wired to /api/tasks)"
+  },
+  "officeAllProj": {
+    "cn": "全部项目",
+    "en": "All projects"
+  },
+  "officeNewAgent": {
+    "cn": "新员工",
+    "en": "New hire"
+  },
+  "officeSpawnOk": {
+    "cn": "已添加 Agent",
+    "en": "Agent added"
+  },
+  "officeSpawnFull": {
+    "cn": "Agent 池已满，请增大 serve 的 --max-agents",
+    "en": "Agent pool is full; increase --max-agents on serve"
+  },
+  "officePoolEmpty": {
+    "cn": "暂无运行中的 Agent，请点击「新员工」添加。",
+    "en": "No agents in the pool yet. Click New hire to add one."
+  },
+  "officeAgentRuntime": {
+    "cn": "调度器运行池中的实例",
+    "en": "Live instances in the scheduler pool"
+  },
+  "officeAgentStIdle": { "cn": "空闲", "en": "Idle" },
+  "officeAgentStBusy": { "cn": "执行中", "en": "Busy" },
+  "officeAgentStErr": { "cn": "错误", "en": "Error" },
+  "officeAgentStOff": { "cn": "离线", "en": "Offline" },
+  "officeNewTask": {
+    "cn": "新任务",
+    "en": "New task"
+  },
+  "officeAgents": {
+    "cn": "团队",
+    "en": "Team"
+  },
+  "officeKanban": {
+    "cn": "看板",
+    "en": "Board"
+  },
+  "officeDetail": {
+    "cn": "任务详情",
+    "en": "Task detail"
+  },
+  "officeColBacklog": {
+    "cn": "待办",
+    "en": "Backlog"
+  },
+  "officeColProgress": {
+    "cn": "进行中",
+    "en": "In progress"
+  },
+  "officeColInput": {
+    "cn": "待输入",
+    "en": "Needs input"
+  },
+  "officeColDone": {
+    "cn": "已完成",
+    "en": "Complete"
+  },
+  "officeOverview": {
+    "cn": "概览",
+    "en": "Overview"
+  },
+  "officeConv": {
+    "cn": "对话",
+    "en": "Conversation"
+  },
+  "officeEvents": {
+    "cn": "事件",
+    "en": "Events"
+  },
+  "officeSendPh": {
+    "cn": "向该任务发送提示…",
+    "en": "Send a prompt to this task…"
+  },
+  "officeSend": {
+    "cn": "发送",
+    "en": "Send"
+  },
+  "officeNoTranscript": {
+    "cn": "暂无对话记录。",
+    "en": "No transcript entries yet."
+  },
+  "officeNoEvents": {
+    "cn": "暂无系统事件。",
+    "en": "No system events yet."
+  },
+  "officeAssignAgent": {
+    "cn": "分配 Agent",
+    "en": "Assign agent"
+  },
+  "officeAssignHint": {
+    "cn": "选择池内 Agent 后自动开始执行",
+    "en": "Pick a pool agent to start execution"
+  },
+  "officePickNone": {
+    "cn": "无",
+    "en": "None"
+  },
+  "modalNewTaskTitle": {
+    "cn": "新建任务",
+    "en": "New task"
+  },
+  "modalTaskContent": {
+    "cn": "内容",
+    "en": "Content"
+  },
+  "modalCancel": {
+    "cn": "取消",
+    "en": "Cancel"
+  },
+  "modalSubmit": {
+    "cn": "创建",
+    "en": "Create"
+  },
+  "modalNewAgentTitle": {
+    "cn": "新建 Agent",
+    "en": "New agent"
+  },
+  "modalAgentName": {
+    "cn": "显示名称",
+    "en": "Display name"
+  },
+  "modalAgentNamePh": {
+    "cn": "例如：审稿助手",
+    "en": "e.g. Review bot"
+  },
+  "modalAgentAvatar": {
+    "cn": "头像",
+    "en": "Avatar"
+  },
+  "modalAgentAvatarCustom": {
+    "cn": "自定义（emoji 或图片 URL）",
+    "en": "Custom (emoji or image URL)"
+  },
+  "modalAgentAvatarCustomPh": {
+    "cn": "覆盖上方选择；留空则用所选 emoji",
+    "en": "Overrides preset; leave empty to use selected emoji"
+  },
+  "modalAgentPersona": {
+    "cn": "人格 / 系统提示词",
+    "en": "Persona / system prompt"
+  },
+  "modalAgentPersonaPh": {
+    "cn": "描述角色风格、语气、约束等，将作为该 Agent 执行任务的 system 消息前缀。",
+    "en": "Describe tone, role, constraints; sent as a leading system message for this agent."
+  },
+  "modalAgentSubmit": {
+    "cn": "加入团队",
+    "en": "Add to team"
+  },
+  "officeNoTasksDetail": {
+    "cn": "（无任务）",
+    "en": "(No tasks)"
+  },
+  "navSettings": {
+    "cn": "设置",
+    "en": "Settings"
+  },
+  "settingsTitle": {
+    "cn": "设置",
+    "en": "Settings"
+  },
+  "settingsIntro": {
+    "cn": "此处为占位页，样式与参考 Cline 控制台「设置」区块一致。后续可接入真实配置项。",
+    "en": "Placeholder page using the same settings layout tokens as the reference Cline console."
+  },
+  "settingsBack": {
+    "cn": "返回看板",
+    "en": "Back to board"
+  }
+}

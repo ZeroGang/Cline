@@ -5,6 +5,7 @@ import { EventEmitter, type SchedulerEventMap } from '../monitoring/events.js'
 import { AgentMonitor } from '../monitoring/monitor.js'
 import { MetricsCollector } from '../monitoring/metrics.js'
 import { AlertManager } from '../monitoring/alerts.js'
+import { MONITOR_DASHBOARD_CSS } from './dashboard-styles.js'
 
 export interface MonitorServerConfig {
   port: number
@@ -217,100 +218,85 @@ export class MonitorServer {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CLine Monitor</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; }
-    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-    h1 { margin-bottom: 20px; color: #00d9ff; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-    .card { background: #16213e; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-    .card h2 { margin-bottom: 15px; color: #00d9ff; font-size: 18px; }
-    .stat { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #2a2a4a; }
-    .stat:last-child { border-bottom: none; }
-    .stat-label { color: #888; }
-    .stat-value { font-weight: bold; }
-    .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; }
-    .status-running { background: #00c853; color: #fff; }
-    .status-stopped { background: #ff5252; color: #fff; }
-    .status-idle { background: #2196f3; color: #fff; }
-    .status-busy { background: #ff9800; color: #fff; }
-    .status-error { background: #f44336; color: #fff; }
-    .agent-list { max-height: 400px; overflow-y: auto; }
-    .agent-item { padding: 12px; margin-bottom: 8px; background: #1a1a2e; border-radius: 6px; }
-    .agent-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .agent-item-id { font-weight: bold; color: #00d9ff; }
-    .agent-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12px; color: #888; }
-    .alert-list { max-height: 300px; overflow-y: auto; }
-    .alert-item { padding: 12px; margin-bottom: 8px; background: #1a1a2e; border-radius: 6px; border-left: 4px solid; }
-    .alert-warning { border-color: #ff9800; }
-    .alert-critical { border-color: #f44336; }
-    .alert-info { border-color: #2196f3; }
-    .alert-title { font-weight: bold; margin-bottom: 4px; }
-    .alert-message { font-size: 14px; color: #888; }
-    .event-log { max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
-    .event-item { padding: 8px; border-bottom: 1px solid #2a2a4a; }
-    .event-type { color: #00d9ff; }
-    .event-time { color: #666; margin-left: 10px; }
-    .connection-status { position: fixed; top: 10px; right: 10px; padding: 8px 16px; border-radius: 4px; }
-    .connected { background: #00c853; }
-    .disconnected { background: #ff5252; }
-  </style>
+  <title>Cline 监控</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <style>${MONITOR_DASHBOARD_CSS}</style>
 </head>
-<body>
-  <div class="connection-status" id="connection-status">Disconnected</div>
-  <div class="container">
-    <h1>CLine Monitor</h1>
-    <div class="grid">
-      <div class="card">
-        <h2>Scheduler Status</h2>
-        <div class="stat">
-          <span class="stat-label">Status</span>
-          <span class="stat-value"><span class="status-badge" id="scheduler-status">-</span></span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Total Agents</span>
-          <span class="stat-value" id="total-agents">0</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Active Agents</span>
-          <span class="stat-value" id="active-agents">0</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Queued Tasks</span>
-          <span class="stat-value" id="queued-tasks">0</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Completed Tasks</span>
-          <span class="stat-value" id="completed-tasks">0</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Failed Tasks</span>
-          <span class="stat-value" id="failed-tasks">0</span>
-        </div>
+<body data-theme="dark" data-layout="solo">
+  <main class="main main--wide" id="main">
+    <header class="monitor-top">
+      <div>
+        <h1 class="monitor-title">Cline 监控</h1>
+        <p class="monitor-sub">实时调度器、Agent 与告警。样式与桌面「搞着玩/Cline」控制台一致（Zinc 灰 + 翠绿强调）。</p>
       </div>
+      <div class="conn-pill disconnected" id="connection-status" role="status" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="connection-status-text">已断开</span>
+      </div>
+    </header>
 
-      <div class="card">
-        <h2>Agents</h2>
+    <div class="mon-grid">
+      <section class="card" aria-labelledby="sched-h">
+        <h2 class="sec-title" id="sched-h"><i class="ph ph-gauge"></i> 调度器状态</h2>
+        <div class="stat-rows">
+          <div class="stat">
+            <span class="stat-label">运行状态</span>
+            <span class="stat-value"><span class="badge" id="scheduler-status">—</span></span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Agent 总数</span>
+            <span class="stat-value" id="total-agents">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">活跃 Agent</span>
+            <span class="stat-value" id="active-agents">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">队列任务</span>
+            <span class="stat-value" id="queued-tasks">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">已完成</span>
+            <span class="stat-value" id="completed-tasks">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">失败</span>
+            <span class="stat-value" id="failed-tasks">0</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="agents-h">
+        <h2 class="sec-title" id="agents-h"><i class="ph ph-users-three"></i> Agents</h2>
         <div class="agent-list" id="agent-list"></div>
-      </div>
+      </section>
 
-      <div class="card">
-        <h2>Active Alerts</h2>
+      <section class="card" aria-labelledby="alerts-h">
+        <h2 class="sec-title" id="alerts-h"><i class="ph ph-warning-circle"></i> 活跃告警</h2>
         <div class="alert-list" id="alert-list"></div>
-      </div>
+      </section>
 
-      <div class="card">
-        <h2>Recent Events</h2>
+      <section class="card" aria-labelledby="events-h">
+        <h2 class="sec-title" id="events-h"><i class="ph ph-list-bullets"></i> 最近事件</h2>
         <div class="event-log" id="event-log"></div>
-      </div>
+      </section>
     </div>
-  </div>
+  </main>
 
   <script>
     let ws;
     let reconnectAttempts = 0;
     const maxReconnectAttempts = 5;
+
+    function setConnState(connected) {
+      const el = document.getElementById('connection-status');
+      const txt = document.getElementById('connection-status-text');
+      el.className = 'conn-pill ' + (connected ? 'connected' : 'disconnected');
+      txt.textContent = connected ? '已连接' : '已断开';
+    }
 
     function connect() {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -318,15 +304,13 @@ export class MonitorServer {
 
       ws.onopen = () => {
         console.log('Connected to monitor server');
-        document.getElementById('connection-status').textContent = 'Connected';
-        document.getElementById('connection-status').className = 'connection-status connected';
+        setConnState(true);
         reconnectAttempts = 0;
       };
 
       ws.onclose = () => {
         console.log('Disconnected from monitor server');
-        document.getElementById('connection-status').textContent = 'Disconnected';
-        document.getElementById('connection-status').className = 'connection-status disconnected';
+        setConnState(false);
 
         if (reconnectAttempts < maxReconnectAttempts) {
           reconnectAttempts++;
@@ -361,8 +345,8 @@ export class MonitorServer {
 
     function updateSchedulerStatus(status) {
       const statusEl = document.getElementById('scheduler-status');
-      statusEl.textContent = status.running ? 'Running' : 'Stopped';
-      statusEl.className = 'status-badge ' + (status.running ? 'status-running' : 'status-stopped');
+      statusEl.textContent = status.running ? '运行中' : '已停止';
+      statusEl.className = 'badge ' + (status.running ? 'status-running' : 'status-stopped');
 
       document.getElementById('total-agents').textContent = status.totalAgents;
       document.getElementById('active-agents').textContent = status.activeAgents;
@@ -377,12 +361,12 @@ export class MonitorServer {
         <div class="agent-item">
           <div class="agent-item-header">
             <span class="agent-item-id">\${agent.id}</span>
-            <span class="status-badge status-\${agent.status}">\${agent.status}</span>
+            <span class="badge status-\${agent.status}">\${agent.status}</span>
           </div>
           <div class="agent-stats">
-            <span>Queries: \${agent.totalQueries}</span>
-            <span>Tokens: \${agent.totalTokens}</span>
-            <span>Errors: \${agent.errorCount}</span>
+            <span>查询 \${agent.totalQueries}</span>
+            <span>Token \${agent.totalTokens}</span>
+            <span>错误 \${agent.errorCount}</span>
           </div>
         </div>
       \`).join('');
@@ -391,7 +375,7 @@ export class MonitorServer {
     function updateAlerts(alerts) {
       const container = document.getElementById('alert-list');
       if (alerts.length === 0) {
-        container.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">No active alerts</div>';
+        container.innerHTML = '<div class="empty-hint">当前无活跃告警</div>';
         return;
       }
       container.innerHTML = alerts.map(alert => \`

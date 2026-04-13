@@ -256,12 +256,12 @@ describe('Phase 5 Integration Tests', () => {
         path: '/api/tasks',
         headers: {},
         query: {},
-        body: { description: 'Test task', priority: 'high' }
+        body: { prompt: 'Test task', priority: 'high' }
       }
 
       const createRes = await server.handleRequest(createReq)
       expect(createRes.status).toBe(201)
-      expect((createRes.body as any).task.description).toBe('Test task')
+      expect((createRes.body as { task: { prompt: string } }).task.prompt).toBe('Test task')
 
       const listReq: ApiRequest = {
         method: 'GET',

@@ -64,6 +64,12 @@ export interface AgentDefinition {
   background: boolean
   maxTurns?: number
   requiredMcpServers?: string[]
+  /** 看板/API 展示名 */
+  displayName?: string
+  /** 头像：emoji 或 http(s) 图片地址 */
+  avatar?: string
+  /** 作为首条 system 消息注入，影响模型人格与行为 */
+  systemPrompt?: string
 }
 
 export type { AgentId, AgentStatus, PermissionMode } from '../types.js'

@@ -42,7 +42,7 @@ describe('MonitorServer', () => {
       expect(response.headers.get('content-type')).toBe('text/html')
       
       const html = await response.text()
-      expect(html).toContain('CLine Monitor')
+      expect(html).toMatch(/Cline|监控/)
     })
 
     it('should serve scheduler status', async () => {

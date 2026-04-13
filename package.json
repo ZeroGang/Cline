@@ -10,10 +10,12 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "dev:stack": "npm run build && concurrently -k -n api,ui -c blue,magenta \"node dist/cli.js serve\" \"npm run dev --prefix ui\"",
     "lint": "eslint src/",
     "test": "vitest run",
     "test:watch": "vitest",
-    "start": "node dist/cli/index.js"
+    "start": "node dist/cli.js",
+    "serve": "node dist/cli.js serve"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
@@ -24,6 +26,7 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "@types/node": "^22.13.0",
     "@types/ws": "^8.5.14",
     "@typescript-eslint/eslint-plugin": "^8.24.0",

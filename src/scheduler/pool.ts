@@ -180,12 +180,38 @@ export class AgentPool {
     return Array.from(this.pool.values()).map(a => a.instance)
   }
 
-  private async createAgent(): Promise<AgentId> {
+  /**
+   * 在未达 `maxAgents` 时新增一名空闲 Agent（与 acquire 时按需扩容逻辑一致）。
+   * @returns 新 Agent id；池已满则返回 `null`
+   */
+  async spawnExtraAgent(
+    profile?: Partial<Pick<AgentDefinition, 'displayName' | 'avatar' | 'systemPrompt'>>
+  ): Promise<AgentId | null> {
+    if (!this.initialized) {
+      await this.initialize()
+    }
+    if (this.pool.size >= this.config.maxAgents) {
+      this.logger.warn('spawnExtraAgent: pool at max capacity', {
+        size: this.pool.size,
+        maxAgents: this.config.maxAgents,
+      })
+      return null
+    }
+    return this.createAgent(profile)
+  }
+
+  private async createAgent(
+    profile?: Partial<Pick<AgentDefinition, 'displayName' | 'avatar' | 'systemPrompt'>>
+  ): Promise<AgentId> {
     const agentId = `agent-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` as AgentId
+
+    const definition: AgentDefinition = profile
+      ? { ...this.agentDefinition, ...profile }
+      : this.agentDefinition
 
     const instance = new AgentInstanceImpl(
       agentId,
-      this.agentDefinition,
+      definition,
       {} as any,
       this.deps
     )

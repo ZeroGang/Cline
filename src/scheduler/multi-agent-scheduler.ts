@@ -1,6 +1,7 @@
 import type { Task, TaskQueueConfig, AgentEvent } from './types.js'
-import type { AgentId, TaskId } from '../types.js'
+import type { AgentId, TaskId, TaskPriority, TaskStatus } from '../types.js'
 import type { AgentDefinition, QueryDeps } from '../agent/types.js'
+import type { AgentInstanceImpl } from '../agent/instance.js'
 import { TaskQueue, createTaskQueue, createTask } from './queue.js'
 import { AgentPool, createAgentPool } from './pool.js'
 import { LoadBalancer, createLoadBalancer } from './loadbalancer.js'
@@ -13,6 +14,18 @@ export interface MultiAgentSchedulerConfig {
   taskQueueConfig?: Partial<TaskQueueConfig>
   loadBalanceStrategy?: 'round-robin' | 'least-loaded' | 'priority-based'
   agentDefinition: AgentDefinition
+  /**
+   * 为 true 时：仅当 `task.metadata.assignAgent` 指向池内当前 **idle** 的 Agent 时才出队执行；
+   * 新任务在未分配前会一直保持待办（pending）。
+   */
+  requireAssignAgentBeforeRun?: boolean
+}
+
+/** POST /api/agents 可选字段，用于新建实例的展示与 system 人格 */
+export interface SpawnAgentInput {
+  displayName?: string
+  avatar?: string
+  personalityPrompt?: string
 }
 
 interface AgentInfo {
@@ -29,6 +42,7 @@ export class MultiAgentScheduler {
   private coordinator: Coordinator
   private logger: Logger
   private agentDefinition: AgentDefinition
+  private readonly requireAssignAgentBeforeRun: boolean
   private running = false
   private eventHandlers: Map<string, ((event: AgentEvent) => void)[]> = new Map()
   private agentTaskCount: Map<AgentId, number> = new Map()
@@ -41,6 +55,7 @@ export class MultiAgentScheduler {
     this.taskQueue = createTaskQueue(config.taskQueueConfig)
     this.logger = new Logger({ source: 'MultiAgentScheduler' })
     this.agentDefinition = config.agentDefinition
+    this.requireAssignAgentBeforeRun = config.requireAssignAgentBeforeRun === true
 
     this.agentPool = createAgentPool({
       minAgents: config.minAgents,
@@ -127,7 +142,7 @@ export class MultiAgentScheduler {
       throw new Error(`Task ${taskId} not found`)
     }
 
-    if (task.status === 'pending') {
+    if (task.status === 'pending' || task.status === 'waiting') {
       this.taskQueue.cancel(taskId)
       this.logger.info('Pending task cancelled', { taskId })
     } else if (task.status === 'running') {
@@ -166,8 +181,158 @@ export class MultiAgentScheduler {
     return this.agentPool.getPoolSize()
   }
 
+  getAllAgentInstances(): AgentInstanceImpl[] {
+    return this.agentPool.getAllAgents()
+  }
+
+  getAgentInstance(id: AgentId): AgentInstanceImpl | undefined {
+    return this.agentPool.getAgent(id)
+  }
+
+  /** 扩容一名 Agent（受 `maxAgents` 限制） */
+  async spawnAgent(input?: SpawnAgentInput): Promise<AgentId | null> {
+    if (!input) {
+      return this.agentPool.spawnExtraAgent()
+    }
+    const displayName = input.displayName?.trim()
+    const avatar = input.avatar?.trim()
+    const systemPrompt = input.personalityPrompt?.trim()
+    if (!displayName && !avatar && !systemPrompt) {
+      return this.agentPool.spawnExtraAgent()
+    }
+    return this.agentPool.spawnExtraAgent({
+      ...(displayName ? { displayName } : {}),
+      ...(avatar ? { avatar } : {}),
+      ...(systemPrompt ? { systemPrompt } : {}),
+    })
+  }
+
   getAvailableAgentCount(): number {
     return this.agentPool.getAvailableCount()
+  }
+
+  /** 调度循环是否在跑（与任务状态 running 无关） */
+  isScheduleLoopRunning(): boolean {
+    return this.running
+  }
+
+  pauseScheduling(): void {
+    this.running = false
+    this.logger.info('Scheduling loop paused')
+  }
+
+  resumeScheduling(): void {
+    if (this.running) return
+    this.running = true
+    void this.runLoop()
+    this.logger.info('Scheduling loop resumed')
+  }
+
+  listTasksForApi(filter?: { status?: TaskStatus; priority?: TaskPriority }): Task[] {
+    const all = this.taskQueue.getAllTasks()
+    if (!filter) return all
+    return all.filter((t) => {
+      if (filter.status !== undefined && t.status !== filter.status) return false
+      if (filter.priority !== undefined && t.priority !== filter.priority) return false
+      return true
+    })
+  }
+
+  async createTaskForApi(input: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task> {
+    const id = this.submitTask(input.prompt, {
+      type: input.type,
+      priority: input.priority,
+      dependencies: input.dependencies,
+      retryCount: input.retryCount,
+      maxRetries: input.maxRetries,
+      metadata: input.metadata,
+    })
+    const t = this.taskQueue.getTask(id)
+    if (!t) {
+      throw new Error('Task creation failed')
+    }
+    return t
+  }
+
+  async updateTaskForApi(id: TaskId, updates: Partial<Task>): Promise<Task | undefined> {
+    const t = this.taskQueue.getTask(id)
+    if (!t) return undefined
+
+    if (updates.metadata !== undefined) {
+      t.metadata = { ...(t.metadata ?? {}), ...updates.metadata }
+    }
+    if (updates.prompt !== undefined && (t.status === 'pending' || t.status === 'waiting')) {
+      t.prompt = updates.prompt
+    }
+    if (updates.priority !== undefined) {
+      this.taskQueue.updatePriority(id, updates.priority)
+    }
+    if (updates.status !== undefined) {
+      const next = updates.status
+      if (next === 'cancelled') {
+        await this.cancelTask(id)
+        return this.taskQueue.getTask(id)
+      }
+      if (next === 'waiting' && (t.status === 'pending' || t.status === 'waiting')) {
+        t.status = 'waiting'
+        return t
+      }
+      if (next === 'completed') {
+        if (t.status === 'pending' || t.status === 'waiting') {
+          const done = this.taskQueue.resolvePendingAsCompleted(id)
+          return done ?? this.taskQueue.getTask(id)
+        }
+        if (t.status === 'running') {
+          try {
+            this.taskQueue.complete(id)
+          } catch {
+            /* 可能与 Agent 并发，保留当前视图 */
+          }
+          return this.taskQueue.getTask(id)
+        }
+      }
+      if (next === 'running' && (t.status === 'pending' || t.status === 'waiting')) {
+        this.taskQueue.updatePriority(id, 'critical')
+      }
+    }
+    return this.taskQueue.getTask(id)
+  }
+
+  async deleteTaskForApi(id: TaskId): Promise<boolean> {
+    return this.taskQueue.removeTask(id)
+  }
+
+  async tryCancelTaskForApi(id: TaskId): Promise<boolean> {
+    try {
+      await this.cancelTask(id)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  getSchedulerStatusForApi(): {
+    running: boolean
+    totalAgents: number
+    activeAgents: number
+    idleAgents: number
+    queuedTasks: number
+    completedTasks: number
+    failedTasks: number
+  } {
+    const completed = this.taskQueue.getCompleted()
+    const failed = completed.filter((x) => x.status === 'failed').length
+    const succeeded = completed.filter((x) => x.status === 'completed').length
+    const cancelled = completed.filter((x) => x.status === 'cancelled').length
+    return {
+      running: this.running,
+      totalAgents: this.agentPool.getPoolSize(),
+      activeAgents: this.agentPool.getInUseCount(),
+      idleAgents: this.agentPool.getAvailableCount(),
+      queuedTasks: this.taskQueue.getPending().length,
+      completedTasks: succeeded + cancelled,
+      failedTasks: failed,
+    }
   }
 
   setLoadBalanceStrategy(strategy: 'round-robin' | 'least-loaded' | 'priority-based'): void {
@@ -216,14 +381,32 @@ export class MultiAgentScheduler {
 
       const agents = this.getAgentInfos()
 
-      const assignment = this.loadBalancer.assign(pendingTasks, agents)
+      let task: Task | null = null
+      let agentId: AgentId | null = null
 
-      if (!assignment) {
-        await this.sleep(100)
-        continue
+      if (this.requireAssignAgentBeforeRun) {
+        const candidates = pendingTasks.filter((t) => this.canRunWithAssignedAgent(t, agents))
+        const picked = this.loadBalancer.selectTask(candidates, agents)
+        if (!picked) {
+          await this.sleep(100)
+          continue
+        }
+        const assigned = this.getAssignAgentFromMetadata(picked)
+        if (!assigned) {
+          await this.sleep(100)
+          continue
+        }
+        task = picked
+        agentId = assigned
+      } else {
+        const assignment = this.loadBalancer.assign(pendingTasks, agents)
+        if (!assignment) {
+          await this.sleep(100)
+          continue
+        }
+        task = assignment.task
+        agentId = assignment.agent
       }
-
-      const { task, agent: agentId } = assignment
 
       const agent = this.agentPool.getAgent(agentId)
       if (!agent) {
@@ -231,7 +414,9 @@ export class MultiAgentScheduler {
         continue
       }
 
-      const dequeuedTask = this.taskQueue.dequeue()
+      const dequeuedTask = this.requireAssignAgentBeforeRun
+        ? this.taskQueue.claimPendingById(task.id)
+        : this.taskQueue.dequeue()
       if (!dequeuedTask || dequeuedTask.id !== task.id) {
         await this.sleep(100)
         continue
@@ -279,6 +464,31 @@ export class MultiAgentScheduler {
       status: agent.status,
       taskCount: this.agentTaskCount.get(agent.id) || 0
     }))
+  }
+
+  private getAssignAgentFromMetadata(task: Task): AgentId | null {
+    const raw = task.metadata && typeof task.metadata.assignAgent === 'string' ? task.metadata.assignAgent.trim() : ''
+    if (!raw) {
+      return null
+    }
+    return raw as AgentId
+  }
+
+  /** 任务是否已绑定池内空闲 Agent（且依赖已满足由 claim 时再校验） */
+  private canRunWithAssignedAgent(task: Task, agents: AgentInfo[]): boolean {
+    if (task.status !== 'pending' && task.status !== 'waiting') {
+      return false
+    }
+    const agentId = this.getAssignAgentFromMetadata(task)
+    if (!agentId) {
+      return false
+    }
+    const inst = this.agentPool.getAgent(agentId)
+    if (!inst || inst.status !== 'idle') {
+      return false
+    }
+    const info = agents.find((a) => a.id === agentId)
+    return Boolean(info && info.status === 'idle')
   }
 
   private handleAgentEvent(event: AgentEvent, agentId: AgentId): void {

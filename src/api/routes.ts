@@ -11,9 +11,18 @@ export interface TaskApiDependencies {
   cancelTask: (id: string, reason?: string) => Promise<boolean>
 }
 
+/** POST /api/agents JSON 体（字段均可选） */
+export interface SpawnAgentRequestBody {
+  displayName?: string
+  avatar?: string
+  personalityPrompt?: string
+}
+
 export interface AgentApiDependencies {
   getAgentStatus: (agentId: string) => AgentStatus | undefined
   getAllAgentStatuses: () => AgentStatus[]
+  /** 新增一名 Agent；池满时返回 `null` */
+  spawnAgent?: (input?: SpawnAgentRequestBody) => Promise<AgentStatus | null>
 }
 
 export interface SchedulerApiDependencies {
@@ -179,6 +188,32 @@ export class AgentApi {
     this.server.get('/api/agents', async () => {
       const agents = this.deps.getAllAgentStatuses()
       return this.server.json({ agents })
+    })
+
+    this.server.post('/api/agents', async (req) => {
+      if (!this.deps.spawnAgent) {
+        return this.server.errorResponse(501, 'Agent spawn not configured')
+      }
+      let input: SpawnAgentRequestBody | undefined
+      if (req.body && typeof req.body === 'object') {
+        const b = req.body as Record<string, unknown>
+        const displayName =
+          typeof b.displayName === 'string' ? b.displayName.trim().slice(0, 128) : undefined
+        const avatar = typeof b.avatar === 'string' ? b.avatar.trim().slice(0, 2048) : undefined
+        const personalityPrompt =
+          typeof b.personalityPrompt === 'string' ? b.personalityPrompt.trim().slice(0, 32000) : undefined
+        if (displayName || avatar || personalityPrompt) {
+          input = {}
+          if (displayName) input.displayName = displayName
+          if (avatar) input.avatar = avatar
+          if (personalityPrompt) input.personalityPrompt = personalityPrompt
+        }
+      }
+      const agent = await this.deps.spawnAgent(input)
+      if (!agent) {
+        return this.server.errorResponse(400, 'Cannot spawn agent: pool at max capacity')
+      }
+      return this.server.json({ agent }, 201)
     })
 
     this.server.get('/api/agents/:id', async (req) => {

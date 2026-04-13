@@ -10,6 +10,8 @@ export {
   type ApiServerConfig
 } from './server.js'
 
+export { createHttpServerForApi, listenApiServer } from './http-node.js'
+
 export {
   TaskApi,
   AgentApi,

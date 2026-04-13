@@ -1,0 +1,4 @@
+/* React root：与参考站 body 布局配合 */
+#root {
+  min-height: 100vh;
+}

@@ -41,6 +41,17 @@ export class AgentInstanceImpl {
     return this._currentTaskId
   }
 
+  /** 看板展示名；未设置时由调用方回退为 id */
+  getDisplayName(): string | undefined {
+    const d = this.definition.displayName?.trim()
+    return d || undefined
+  }
+
+  getAvatar(): string | undefined {
+    const a = this.definition.avatar?.trim()
+    return a || undefined
+  }
+
   async *execute(task: Task): AsyncGenerator<AgentEvent> {
     if (this.disposed) {
       throw new Error('Agent instance has been disposed')

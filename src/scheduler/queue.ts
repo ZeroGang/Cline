@@ -84,6 +84,42 @@ export class TaskQueue {
     return null
   }
 
+  /**
+   * 仅将指定 id 的排队任务移入 running（依赖、并发上限与 dequeue 一致）。
+   * 用于「已指定 Agent」的调度路径，避免与队首 dequeue 错配。
+   */
+  claimPendingById(taskId: TaskId): Task | null {
+    if (this.running.size >= this.config.maxConcurrent) {
+      return null
+    }
+
+    const completedIds = new Set<TaskId>(this.completed.keys())
+    const idx = this.queue.findIndex((t) => t.id === taskId)
+    if (idx === -1) {
+      return null
+    }
+
+    const task = this.queue[idx]
+    if (!task) {
+      return null
+    }
+
+    if (!this.dependencyResolver.areDependenciesMet(task, completedIds)) {
+      return null
+    }
+
+    this.queue.splice(idx, 1)
+
+    const runningTask: Task = {
+      ...task,
+      status: 'running',
+      startedAt: Date.now()
+    }
+
+    this.running.set(task.id, runningTask)
+    return runningTask
+  }
+
   complete(taskId: TaskId, result?: unknown): void {
     const task = this.running.get(taskId)
     if (!task) {
@@ -185,6 +221,11 @@ export class TaskQueue {
     return Array.from(this.completed.values())
   }
 
+  /** 供 API / 控制台：待办、运行中、已结束（含失败、取消）全量列表 */
+  getAllTasks(): Task[] {
+    return [...this.queue, ...this.running.values(), ...this.completed.values()]
+  }
+
   getTask(taskId: TaskId): Task | undefined {
     const queueTask = this.queue.find(t => t.id === taskId)
     if (queueTask) return queueTask
@@ -216,6 +257,44 @@ export class TaskQueue {
     this.queue = []
     this.running.clear()
     this.completed.clear()
+  }
+
+  /**
+   * 从待办或已结束集合中移除任务（运行中不可删，避免与调度循环竞态）。
+   * @returns 是否成功移除
+   */
+  removeTask(taskId: TaskId): boolean {
+    const qi = this.queue.findIndex((t) => t.id === taskId)
+    if (qi !== -1) {
+      this.queue.splice(qi, 1)
+      return true
+    }
+    if (this.running.has(taskId)) {
+      return false
+    }
+    if (this.completed.has(taskId)) {
+      this.completed.delete(taskId)
+      return true
+    }
+    return false
+  }
+
+  /**
+   * 将仍为 pending 的任务直接标记为已完成并移入 completed（用于控制台「Done」等）。
+   */
+  resolvePendingAsCompleted(taskId: TaskId): Task | undefined {
+    const qi = this.queue.findIndex((t) => t.id === taskId)
+    if (qi === -1) return undefined
+    const task = this.queue[qi]
+    if (!task || (task.status !== 'pending' && task.status !== 'waiting')) return undefined
+    this.queue.splice(qi, 1)
+    const done: Task = {
+      ...task,
+      status: 'completed',
+      completedAt: Date.now(),
+    }
+    this.completed.set(taskId, done)
+    return done
   }
 
   updatePriority(taskId: TaskId, priority: TaskPriority): void {
