@@ -312,7 +312,7 @@
       "description": "实现 LoadBalanceStrategy 接口和三种策略：PriorityStrategy、FairShareStrategy、DependencyStrategy",
       "architecture_ref": "§6.4 负载均衡策略",
       "depends_on": ["T016", "T018"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "LoadBalanceStrategy 接口定义",
         "PriorityStrategy 按优先级选择",

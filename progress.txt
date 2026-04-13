@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-04-13 - Task: T020 实现负载均衡策略
+
+### What was done:
+- 实现 RoundRobinStrategy 类，轮询选择 Agent
+- 实现 LeastLoadedStrategy 类，选择负载最低的 Agent
+- 实现 PriorityBasedStrategy 类，优先处理高优先级任务
+- 实现 LoadBalancer 类，统一管理负载均衡策略
+- 支持动态切换负载均衡策略
+- 实现 selectTask、selectAgent、assign 方法
+
+### Testing:
+- 创建 tests/scheduler/loadbalancer.test.ts 单元测试
+- 测试覆盖：各策略的选择逻辑、LoadBalancer 的策略切换
+- 运行 `npx vitest run tests/scheduler/loadbalancer.test.ts` 全部 20 个测试通过
+
+### Notes:
+- round-robin：轮询选择 Agent，适合均匀分布负载
+- least-loaded：选择当前任务数最少的 Agent，适合动态负载均衡
+- priority-based：优先处理高优先级任务，适合紧急任务场景
+- LoadBalancer 默认使用 least-loaded 策略
+- 策略只选择 idle 状态的 Agent
+
+---
+
 ## 2026-04-13 - Task: T019 实现任务依赖管理
 
 ### What was done:
