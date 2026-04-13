@@ -301,3 +301,111 @@ describe('createTask', () => {
     expect(task.metadata).toEqual({ key: 'value' })
   })
 })
+
+describe('Priority Management', () => {
+  let queue: TaskQueue
+
+  beforeEach(() => {
+    queue = createTaskQueue()
+  })
+
+  describe('updatePriority', () => {
+    it('should update priority of pending task', () => {
+      queue.enqueue(createTask('task-1', 'Task 1', { priority: 'normal' }))
+      queue.updatePriority('task-1', 'high')
+
+      const task = queue.getTask('task-1')
+      expect(task?.priority).toBe('high')
+    })
+
+    it('should re-sort queue after priority update', () => {
+      queue.enqueue(createTask('task-1', 'Task 1', { priority: 'low' }))
+      queue.enqueue(createTask('task-2', 'Task 2', { priority: 'normal' }))
+
+      queue.updatePriority('task-1', 'high')
+
+      const pending = queue.getPending()
+      expect(pending[0].id).toBe('task-1')
+    })
+
+    it('should update priority of running task', () => {
+      queue.enqueue(createTask('task-1', 'Task 1'))
+      queue.dequeue()
+
+      queue.updatePriority('task-1', 'high')
+
+      const task = queue.getTask('task-1')
+      expect(task?.priority).toBe('high')
+    })
+
+    it('should update priority of completed task', () => {
+      queue.enqueue(createTask('task-1', 'Task 1'))
+      queue.dequeue()
+      queue.complete('task-1')
+
+      queue.updatePriority('task-1', 'high')
+
+      const task = queue.getTask('task-1')
+      expect(task?.priority).toBe('high')
+    })
+
+    it('should throw error for unknown task', () => {
+      expect(() => queue.updatePriority('unknown', 'high')).toThrow('not found')
+    })
+  })
+
+  describe('getTasksByPriority', () => {
+    it('should return tasks by priority', () => {
+      queue.enqueue(createTask('task-1', 'Task 1', { priority: 'high' }))
+      queue.enqueue(createTask('task-2', 'Task 2', { priority: 'high' }))
+      queue.enqueue(createTask('task-3', 'Task 3', { priority: 'normal' }))
+
+      const highPriorityTasks = queue.getTasksByPriority('high')
+      expect(highPriorityTasks).toHaveLength(2)
+      expect(highPriorityTasks[0].id).toBe('task-1')
+      expect(highPriorityTasks[1].id).toBe('task-2')
+    })
+
+    it('should include running tasks', () => {
+      queue.enqueue(createTask('task-1', 'Task 1', { priority: 'high' }))
+      queue.dequeue()
+
+      const highPriorityTasks = queue.getTasksByPriority('high')
+      expect(highPriorityTasks).toHaveLength(1)
+    })
+
+    it('should return empty array for no tasks', () => {
+      const highPriorityTasks = queue.getTasksByPriority('high')
+      expect(highPriorityTasks).toHaveLength(0)
+    })
+  })
+
+  describe('getPriorityStats', () => {
+    it('should return priority statistics', () => {
+      queue.enqueue(createTask('task-1', 'Task 1', { priority: 'high' }))
+      queue.enqueue(createTask('task-2', 'Task 2', { priority: 'high' }))
+      queue.enqueue(createTask('task-3', 'Task 3', { priority: 'normal' }))
+      queue.enqueue(createTask('task-4', 'Task 4', { priority: 'low' }))
+
+      queue.dequeue()
+      queue.complete('task-1')
+
+      const stats = queue.getPriorityStats()
+
+      expect(stats.high.pending).toBe(1)
+      expect(stats.high.running).toBe(0)
+      expect(stats.high.completed).toBe(1)
+
+      expect(stats.normal.pending).toBe(1)
+      expect(stats.low.pending).toBe(1)
+    })
+
+    it('should return zero stats for empty queue', () => {
+      const stats = queue.getPriorityStats()
+
+      expect(stats.high.pending).toBe(0)
+      expect(stats.normal.pending).toBe(0)
+      expect(stats.low.pending).toBe(0)
+    })
+  })
+})

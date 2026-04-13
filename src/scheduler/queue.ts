@@ -197,6 +197,69 @@ export class TaskQueue {
     this.completed.clear()
   }
 
+  updatePriority(taskId: TaskId, priority: TaskPriority): void {
+    const queueTask = this.queue.find(t => t.id === taskId)
+    if (queueTask) {
+      queueTask.priority = priority
+      this.sortQueue()
+      return
+    }
+
+    const runningTask = this.running.get(taskId)
+    if (runningTask) {
+      runningTask.priority = priority
+      return
+    }
+
+    const completedTask = this.completed.get(taskId)
+    if (completedTask) {
+      completedTask.priority = priority
+      return
+    }
+
+    throw new Error(`Task ${taskId} not found`)
+  }
+
+  getTasksByPriority(priority: TaskPriority): Task[] {
+    const tasks: Task[] = []
+
+    for (const task of this.queue) {
+      if (task.priority === priority) {
+        tasks.push(task)
+      }
+    }
+
+    for (const task of this.running.values()) {
+      if (task.priority === priority) {
+        tasks.push(task)
+      }
+    }
+
+    return tasks
+  }
+
+  getPriorityStats(): Record<TaskPriority, { pending: number; running: number; completed: number }> {
+    const stats: Record<TaskPriority, { pending: number; running: number; completed: number }> = {
+      high: { pending: 0, running: 0, completed: 0 },
+      normal: { pending: 0, running: 0, completed: 0 },
+      low: { pending: 0, running: 0, completed: 0 }
+    }
+
+    for (const task of this.queue) {
+      stats[task.priority].pending++
+    }
+
+    for (const task of this.running.values()) {
+      stats[task.priority].running++
+    }
+
+    for (const task of this.completed.values()) {
+      stats[task.priority].completed++
+    }
+
+    return stats
+  }
+
   private sortQueue(): void {
     this.queue.sort((a, b) => {
       const priorityDiff = PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority]

@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-04-13 - Task: T018 实现任务优先级队列
+
+### What was done:
+- 扩展 TaskQueue 支持优先级动态调整
+- 实现 updatePriority 方法，支持更新 pending/running/completed 任务优先级
+- 实现 getTasksByPriority 方法，按优先级筛选任务
+- 实现 getPriorityStats 方法，获取优先级统计信息
+- 优先级更新后自动重新排序队列
+- 添加优先级管理相关的单元测试
+
+### Testing:
+- 扩展 tests/scheduler/queue.test.ts 测试用例
+- 测试覆盖：优先级更新、队列重排序、按优先级获取任务、统计信息
+- 运行 `npx vitest run tests/scheduler/queue.test.ts` 全部 37 个测试通过
+
+### Notes:
+- 优先级顺序：high > normal > low
+- 同优先级按创建时间排序（FIFO）
+- updatePriority 支持所有状态的任务
+- getPriorityStats 返回每个优先级的 pending/running/completed 数量
+
+---
+
 ## 2026-04-13 - Task: T017 实现 Backend 抽象层
 
 ### What was done:
