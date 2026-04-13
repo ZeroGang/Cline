@@ -479,7 +479,7 @@
       "description": "编写安全与权限集成测试，验证 Bash 安全链、沙箱隔离、Plan Mode、Hook 系统、错误处理",
       "architecture_ref": "§25 Phase 3",
       "depends_on": ["T025", "T026", "T027", "T028", "T029"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Bash 安全链集成测试通过",
         "沙箱隔离集成测试通过",
