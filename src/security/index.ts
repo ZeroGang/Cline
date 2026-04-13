@@ -6,3 +6,9 @@ export {
   type ParsedCommand,
   type BashCommandClassification
 } from './bash-security.js'
+export { 
+  Sandbox, 
+  createSandbox,
+  type SandboxConfig,
+  type SandboxCheckResult
+} from './sandbox.js'

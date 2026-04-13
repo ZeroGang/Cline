@@ -411,7 +411,7 @@
       "description": "实现 SandboxConfig 接口和 Sandbox 类，支持文件系统隔离（读写路径白名单）、网络隔离（主机黑白名单）、进程隔离",
       "architecture_ref": "§15 沙箱隔离",
       "depends_on": ["T025"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "SandboxConfig 接口定义完整",
         "canRead/canWrite/canAccess/canExecute 检查方法",

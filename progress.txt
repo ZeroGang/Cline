@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-04-13 - Task: T026 实现沙箱隔离
+
+### What was done:
+- 实现 Sandbox 类，支持文件系统、网络、进程隔离
+- 实现 SandboxConfig 接口，定义沙箱配置
+- 实现 canRead/canWrite 方法，检查文件系统访问权限
+- 实现 canAccess 方法，检查网络访问权限
+- 实现 canExecute 方法，检查进程执行权限
+- 实现 shouldUseSandbox() 方法，判断是否需要沙箱
+- 实现 executeInSandbox() 方法，在隔离环境中执行操作
+- 实现 checkFileSize() 方法，检查文件大小限制
+- 支持路径通配符匹配和主机通配符匹配
+
+### Testing:
+- 创建 tests/security/sandbox.test.ts 单元测试
+- 测试覆盖：文件读写权限、网络访问权限、进程执行权限、沙箱启用判断、沙箱执行、文件大小检查、配置管理
+- 运行 `npx vitest run tests/security/sandbox.test.ts` 全部 26 个测试通过
+
+### Notes:
+- 沙箱支持文件系统隔离（读写路径白名单）
+- 沙箱支持网络隔离（主机黑白名单）
+- 沙箱支持进程隔离（进程执行开关）
+- bypass 模式不使用沙箱
+- 支持自定义超时和文件大小限制
+
+---
+
 ## 2026-04-13 - Task: T025 实现 Bash 安全链
 
 ### What was done:
