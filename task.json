@@ -378,7 +378,7 @@
       "description": "编写多 Agent 调度集成测试，验证并行执行、负载均衡、依赖管理、子 Agent 调度",
       "architecture_ref": "§25 Phase 2",
       "depends_on": ["T023"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "多 Agent 并行执行集成测试通过",
         "任务优先级调度集成测试通过",
