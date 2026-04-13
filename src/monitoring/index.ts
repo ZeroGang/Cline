@@ -35,3 +35,19 @@ export {
   type ModelPricing,
   type PerformanceCheckpoint
 } from './metrics.js'
+
+export {
+  AlertManager,
+  HighErrorRateRule,
+  CostThresholdRule,
+  AgentStuckRule,
+  QueueBacklogRule,
+  createAlertManager,
+  createDefaultRules,
+  type AlertSeverity,
+  type AlertState,
+  type Alert,
+  type AlertRule,
+  type AlertEvaluationResult,
+  type AlertManagerConfig
+} from './alerts.js'

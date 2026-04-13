@@ -528,7 +528,7 @@
       "description": "实现 AlertRule 接口、AlertManager 告警检查引擎、默认告警规则（高错误率/成本阈值/Agent 卡住）",
       "architecture_ref": "§17.4 告警规则",
       "depends_on": ["T032"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "AlertRule 接口定义（name/condition/severity/channels）",
         "AlertManager.check() 检查所有规则",

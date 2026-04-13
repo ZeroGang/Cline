@@ -2,6 +2,33 @@
 
 ---
 
+## 2026-04-13 - Task: T033 实现告警系统
+
+### What was done:
+- 实现 AlertManager 类，支持周期性告警规则检查
+- 实现 AlertRule 接口，支持自定义告警规则
+- 实现告警状态机（pending → firing → resolved）
+- 实现默认告警规则：
+  - HighErrorRateRule：高错误率告警
+  - CostThresholdRule：成本阈值告警
+  - AgentStuckRule：Agent 卡住告警
+  - QueueBacklogRule：队列积压告警
+- 支持告警回调（onFire/onResolve）
+- 支持告警历史记录和查询
+
+### Testing:
+- 创建 tests/monitoring/alerts.test.ts 单元测试
+- 测试覆盖：规则管理、告警生命周期、告警查询、默认规则
+- 运行 `npx vitest run tests/monitoring/alerts.test.ts` 全部 22 个测试通过
+
+### Notes:
+- AlertManager 支持可配置的检查间隔
+- 支持告警历史保留和清理
+- 支持按严重级别过滤告警
+- 支持手动清除告警
+
+---
+
 ## 2026-04-13 - Task: T032 实现指标收集与遥测系统
 
 ### What was done:
