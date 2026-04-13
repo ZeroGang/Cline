@@ -97,7 +97,7 @@
       "description": "实现三栏式布局组件：MainLayout 容器、Sidebar 左侧导航栏（支持折叠/展开）、Header 顶部标题栏、Footer 底部状态栏，实现响应式断点适配",
       "architecture_ref": "ui-analysis.md 界面设计分析 - 整体布局/左侧导航栏",
       "depends_on": ["UI004", "UI005"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "MainLayout 使用 CSS Grid/Flexbox 实现三栏布局（sidebar + main + detail panel）",
         "Sidebar 宽度 240px（展开）/64px（折叠），深色背景 #1a1a1a，图标+文字组合，支持折叠/展开切换",
@@ -115,7 +115,7 @@
       "description": "使用 React Router v6 搭建路由系统，定义路由表，实现 Layout 路由嵌套，创建所有页面骨架组件（Dashboard/TasksPage/AgentsPage/SettingsPage/LogsPage/NotFound）",
       "architecture_ref": "ui-analysis.md 推荐项目结构 - pages/",
       "depends_on": ["UI006"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "路由表定义：/dashboard、/tasks、/agents、/settings、/logs、*（404）",
         "Layout 路由嵌套：MainLayout 包裹所有页面路由",
@@ -136,7 +136,7 @@
       "description": "验证 Phase 1 所有组件集成正常：项目构建通过、暗色主题三栏布局正确、侧边栏导航切换页面、路由正常工作、通用组件渲染正确",
       "architecture_ref": "ui-analysis.md 实施路线图 - Phase 1 交付物清单",
       "depends_on": ["UI007"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "npm run build 构建通过无报错",
         "npm run dev 启动后暗色主题三栏布局正确显示",

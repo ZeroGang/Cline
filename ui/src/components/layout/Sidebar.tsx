@@ -1,9 +1,11 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard,
-  Bot,
-  ScrollText,
+  FolderKanban,
+  ListTodo,
+  BarChart3,
   Settings,
+  Wrench,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
@@ -12,21 +14,27 @@ import { useUIStore } from '@/stores/uiStore'
 import { Tooltip } from '@/components/common/Tooltip'
 
 const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/agents', icon: Bot, label: 'Agents' },
-  { to: '/logs', icon: ScrollText, label: 'Logs' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/tasks', icon: ListTodo, label: 'Task Management' },
+  { to: '/agents', icon: FolderKanban, label: 'Agents' },
+  { to: '/logs', icon: BarChart3, label: 'Statistics' },
   { to: '/settings', icon: Settings, label: 'Settings' },
+  { to: '/tools', icon: Wrench, label: 'Toolbox' },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  wsConnected?: boolean
+}
+
+export function Sidebar({ wsConnected = false }: SidebarProps) {
   const { sidebarCollapsed, toggleSidebar } = useUIStore()
   const location = useLocation()
 
   return (
     <aside
       className={cn(
-        'flex h-full flex-col border-r border-[var(--border-color)] bg-[var(--bg-secondary)] transition-all duration-300',
-        sidebarCollapsed ? 'w-16' : 'w-56'
+        'hidden flex-col border-r border-[var(--border-color)] bg-[#1a1a1a] transition-all duration-300 md:flex',
+        sidebarCollapsed ? 'w-16' : 'w-60'
       )}
     >
       <div className="flex h-14 items-center border-b border-[var(--border-color)] px-4">
@@ -39,6 +47,7 @@ export function Sidebar() {
             'flex h-8 w-8 items-center justify-center rounded-[var(--border-radius-sm)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] transition-default cursor-pointer',
             sidebarCollapsed ? 'mx-auto' : 'ml-auto'
           )}
+          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
@@ -46,7 +55,7 @@ export function Sidebar() {
 
       <nav className="flex-1 py-2">
         {navItems.map(({ to, icon: Icon, label }) => {
-          const isActive = location.pathname === to || (to !== '/' && location.pathname.startsWith(to))
+          const isActive = location.pathname === to || (to !== '/dashboard' && location.pathname.startsWith(to))
           const link = (
             <NavLink
               key={to}
@@ -77,9 +86,21 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-[var(--border-color)] p-3">
-        {!sidebarCollapsed && (
-          <div className="text-xs text-[var(--text-muted)]">CLine Monitor v1.0</div>
-        )}
+        <div className={cn('flex items-center gap-2', sidebarCollapsed && 'justify-center')}>
+          <span
+            className={cn(
+              'inline-block h-2 w-2 rounded-full',
+              wsConnected ? 'bg-[var(--accent-green)]' : 'bg-[var(--accent-red)]'
+            )}
+            role="status"
+            aria-label={wsConnected ? 'System running' : 'System disconnected'}
+          />
+          {!sidebarCollapsed && (
+            <span className="text-xs text-[var(--text-muted)]">
+              {wsConnected ? 'System Running' : 'Disconnected'}
+            </span>
+          )}
+        </div>
       </div>
     </aside>
   )
