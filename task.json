@@ -329,7 +329,7 @@
       "description": "实现 Coordinator 类，支持任务分解、Agent 分配、邮箱系统通信、结果收集与合并",
       "architecture_ref": "§4.2 多 Agent 委派模式",
       "depends_on": ["T016", "T020"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Coordinator.coordinate() 分解并分配任务",
         "AgentMailbox 实现 send/receive/broadcast",
