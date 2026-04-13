@@ -249,7 +249,7 @@
       "description": "实现 AgentPool 类，支持弹性伸缩（minAgents/maxAgents），提供 acquire/release 接口，管理 Agent 生命周期",
       "architecture_ref": "§6.3 Agent 池设计",
       "depends_on": ["T015"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "initialize() 预创建 minAgents 个实例",
         "acquire() 返回可用 Agent 或 null",

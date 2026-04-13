@@ -2,3 +2,5 @@ export type { Task, TaskQueueConfig, SchedulerConfig, AgentMetrics, AgentEvent, 
 export { TaskQueue, createTaskQueue, createTask } from './queue.js'
 export { Scheduler, createScheduler } from './scheduler.js'
 export type { SchedulerConfig as SchedulerConfigType } from './scheduler.js'
+export { AgentPool, createAgentPool } from './pool.js'
+export type { AgentPoolConfig } from './pool.js'

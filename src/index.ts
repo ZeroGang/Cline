@@ -1,6 +1,6 @@
 export type { SchedulerConfig, Task, AgentMetrics, AgentEvent, SchedulerEvent, LoadBalanceStrategy } from './scheduler/index.js'
-export { TaskQueue, createTaskQueue, createTask, Scheduler, createScheduler } from './scheduler/index.js'
-export type { SchedulerConfig as SchedulerConfigType } from './scheduler/index.js'
+export { TaskQueue, createTaskQueue, createTask, Scheduler, createScheduler, AgentPool, createAgentPool } from './scheduler/index.js'
+export type { SchedulerConfig as SchedulerConfigType, AgentPoolConfig } from './scheduler/index.js'
 export type { 
   AgentContext, 
   QueryDeps, 

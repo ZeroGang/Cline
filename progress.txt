@@ -2,6 +2,35 @@
 
 ---
 
+## 2026-04-13 - Task: T016 实现 AgentPool 实例池
+
+### What was done:
+- 实现 AgentPool 类，支持弹性伸缩（minAgents/maxAgents）
+- 实现 initialize() 方法，预创建 minAgents 个实例
+- 实现 acquire() 方法，返回可用 Agent 或创建新实例
+- 实现 release() 方法，归还 Agent 到池中
+- 实现 terminate() 方法，终止并移除 Agent
+- 实现 shutdown() 方法，关闭池并清理所有资源
+- 实现弹性伸缩：空闲时自动缩容到 minAgents
+- 实现自动缩容定时器，每分钟检查空闲 Agent
+- 更新 scheduler/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/scheduler/pool.test.ts 单元测试
+- 测试覆盖：初始化、acquire/release、terminate、shutdown、弹性伸缩、计数方法
+- 运行 `npx vitest run tests/scheduler/pool.test.ts` 全部 20 个测试通过
+
+### Notes:
+- AgentPool 使用 Map 存储池化的 Agent 实例
+- 每个 Agent 记录 inUse 状态和 lastUsed 时间戳
+- acquire 优先返回空闲的现有 Agent，不足时创建新实例
+- release 后会尝试缩容，移除长时间空闲的 Agent
+- 缩容阈值：5 分钟（300000ms）
+- 自动缩容定时器：每分钟检查一次
+- 最大 Agent 数量受 maxAgents 限制
+
+---
+
 ## 2026-04-11 - Task: T015 Phase 1 集成测试与 CLI 入口
 
 ### What was done:
