@@ -2,6 +2,35 @@
 
 ---
 
+## 2026-04-13 - Task: T027 实现 Plan Mode
+
+### What was done:
+- 实现 PlanModeManager 类，支持计划模式管理
+- 实现 Plan 和 PlanStep 接口，定义计划结构
+- 实现 createPlan() 方法，创建新计划
+- 实现 addStep() 方法，添加计划步骤
+- 实现 submitForApproval() 方法，提交审批
+- 实现 approvePlan()/rejectPlan() 方法，审批操作
+- 实现 approveStep()/rejectStep() 方法，单步审批
+- 实现 getExecutableSteps() 方法，获取可执行步骤
+- 实现 markStepExecuted() 方法，标记执行完成
+- 实现 validatePlan() 方法，验证计划有效性
+- 支持步骤依赖关系和循环依赖检测
+
+### Testing:
+- 创建 tests/agent/plan-mode.test.ts 单元测试
+- 测试覆盖：计划创建、步骤添加、审批流程、执行跟踪、计划验证、配置管理
+- 运行 `npx vitest run tests/agent/plan-mode.test.ts` 全部 33 个测试通过
+
+### Notes:
+- Plan Mode 支持创建多步骤计划
+- 支持步骤依赖关系管理
+- 支持审批流程（整体审批和单步审批）
+- 支持计划验证（空计划检测、无效依赖检测、循环依赖检测）
+- 支持自动审批和手动审批模式
+
+---
+
 ## 2026-04-13 - Task: T026 实现沙箱隔离
 
 ### What was done:

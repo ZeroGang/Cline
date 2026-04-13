@@ -48,6 +48,13 @@ export {
   createChildAbortController,
   createSubagentContext
 } from './subagent.js'
+export { 
+  PlanModeManager, 
+  createPlanModeManager,
+  type Plan,
+  type PlanStep,
+  type PlanModeConfig
+} from './plan-mode.js'
 export type { 
   SubagentConfig, 
   SubagentExecutionResult 
