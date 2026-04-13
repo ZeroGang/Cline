@@ -462,7 +462,7 @@
       "description": "实现工具级错误隔离（ShellError/shortErrorStack）、查询级错误降级（getAssistantMessageFromError）、系统级熔断器（CircuitBreaker）",
       "architecture_ref": "§8 错误处理与降级",
       "depends_on": ["T015"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "ShellError 包含 stdout/stderr/code/interrupted",
         "shortErrorStack() 限制堆栈帧数",
