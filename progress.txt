@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-04-13 - Task: T038 实现 Docker Backend
+
+### What was done:
+- 实现 DockerBackend 类，符合 AgentBackend 接口
+- 实现 spawn() 方法创建 Docker 容器
+- 实现 terminate() 方法停止并清理容器
+- 实现 exec() 方法在容器内执行命令
+- 实现资源限制配置（CPU/内存）
+- 实现网络隔离配置
+- 实现容器状态检查和消息传递
+
+### Testing:
+- 创建 tests/backend/docker.test.ts 单元测试
+- 测试覆盖：容器创建、终止、命令执行、状态检查、消息传递
+- 运行 `npx vitest run tests/backend/docker.test.ts` 全部 19 个测试通过
+
+### Notes:
+- DockerBackend 使用 Bun.spawn 执行 Docker 命令
+- 支持自定义镜像、网络、资源限制
+- 容器自动清理（autoRemove 选项）
+- 实现了 getOutput 异步生成器用于流式输出
+
+---
+
 ## 2026-04-13 - Task: T037 实现插件系统
 
 ### What was done:
