@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-04-13 - Task: T025 实现 Bash 安全链
+
+### What was done:
+- 实现 BashSecurityChain 类，支持 Bash 命令安全检查
+- 实现 parseForSecurity() 方法，解析命令并识别风险等级
+- 实现 classifyBashCommand() 方法，返回 allow/deny/ask 分类
+- 实现 ALLOWED_NODE_TYPES 白名单检查
+- 实现 HIGH_RISK_PATTERNS 和 LOW_RISK_PATTERNS 模式匹配
+- 实现 truncateOutput() 方法，支持输出截断和持久化
+- 实现 validateCommand() 方法，验证命令安全性
+- 支持 bypass、plan、auto、default 四种权限模式
+
+### Testing:
+- 创建 tests/security/bash-security.test.ts 单元测试
+- 测试覆盖：命令解析、管道检测、后台执行检测、重定向检测、命令分类、输出截断、命令验证
+- 运行 `npx vitest run tests/security/bash-security.test.ts` 全部 27 个测试通过
+
+### Notes:
+- 高风险命令（rm -rf /、fork bomb、shutdown 等）会被直接拒绝
+- bypass 模式允许所有命令执行
+- plan 模式拒绝所有命令执行
+- auto 模式自动允许低风险命令
+- 输出超过限制时自动截断并保存到文件
+
+---
+
 ## 2026-04-13 - Task: T024 Phase 2 集成测试
 
 ### What was done:

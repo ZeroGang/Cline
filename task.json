@@ -394,7 +394,7 @@
       "description": "实现 BashTool 的纵深防御：AST 安全解析（tree-sitter-bash）、命令分类器（高风险/低风险模式）、用户交互审批、输出管理",
       "architecture_ref": "§14 Bash 安全链",
       "depends_on": ["T015"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "parseForSecurity() 使用 tree-sitter-bash 解析",
         "ALLOWED_NODE_TYPES 白名单检查",
