@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-04-13 - Task: T031 实现事件总线与实时状态追踪
+
+### What was done:
+- 实现 EventEmitter 泛型类，支持 emit/on/once/off 操作
+- 实现 SchedulerEventMap 和 AgentEventMap 类型定义
+- 实现 AgentMonitor 类，实时追踪 Agent 状态和指标
+- 支持 recentEvents 滑动窗口（默认最多 100 条）
+- 支持按类型过滤事件
+- 支持异步事件处理
+
+### Testing:
+- 创建 tests/monitoring/monitor.test.ts 单元测试
+- 测试覆盖：EventEmitter 基本操作、AgentMonitor 状态追踪、事件历史管理
+- 运行 `npx vitest run tests/monitoring/monitor.test.ts` 全部 27 个测试通过
+
+### Notes:
+- EventEmitter 支持泛型事件映射，类型安全
+- AgentMonitor 自动监听调度器和 Agent 事件
+- 支持 Agent 状态追踪：idle、busy、error、offline
+- 支持调度器状态追踪：运行状态、任务计数、Agent 计数
+- recentEvents 支持滑动窗口限制
+
+---
+
 ## 2026-04-13 - Task: T030 Phase 3 集成测试
 
 ### What was done:

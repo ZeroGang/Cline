@@ -495,7 +495,7 @@
       "description": "实现 EventEmitter<EventMap> 泛型类、SchedulerEvent/AgentEvent 类型定义、AgentMonitor 实时状态追踪",
       "architecture_ref": "§17 监控系统",
       "depends_on": ["T022"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "EventEmitter 支持 emit/on 泛型事件",
         "SchedulerEvent 和 AgentEvent 类型完整",
