@@ -60,6 +60,8 @@ export {
   createBuiltinTools
 } from './tools/index.js'
 export type { AgentBackend, AgentSpawnConfig, AgentMessage } from './backend/index.js'
+export { InProcessBackend, createInProcessBackend, TmuxBackend, createTmuxBackend, BackendSelector, createBackendSelector } from './backend/index.js'
+export type { BackendSelectorConfig } from './backend/index.js'
 export type { PermissionRule, PermissionCheckResult, PermissionModeConfig, PermissionSystemConfig } from './permissions/index.js'
 export { PERMISSION_MODE_CONFIGS, RuleEngine, createRuleEngine, DEFAULT_RULES, PermissionSystem, createPermissionSystem, createDefaultPermissionSystem } from './permissions/index.js'
 export type { SandboxConfig } from './sandbox/index.js'

@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-04-13 - Task: T017 实现 Backend 抽象层
+
+### What was done:
+- 实现 InProcessBackend 类，在进程内管理 Agent
+- 实现 TmuxBackend 类，使用 tmux 会话管理 Agent
+- 实现 BackendSelector 类，自动选择可用的 Backend
+- 实现 AgentBackend 接口方法：isAvailable/spawn/sendMessage/terminate/getOutput/isActive
+- InProcessBackend 始终可用，作为后备方案
+- TmuxBackend 检测 tmux 可用性，支持会话管理
+- BackendSelector 支持优先级选择和自动回退
+- 更新 backend/index.ts 和 src/index.ts 导出
+
+### Testing:
+- 创建 tests/backend/backend.test.ts 单元测试
+- 测试覆盖：Backend 可用性、Agent 生命周期、消息发送、输出流、选择器逻辑
+- 运行 `npx vitest run tests/backend/backend.test.ts` 全部 19 个测试通过
+
+### Notes:
+- InProcessBackend 使用内存存储 Agent 状态和输出
+- TmuxBackend 通过 child_process 执行 tmux 命令
+- BackendSelector 优先选择配置的 Backend，不可用时回退到 InProcessBackend
+- TmuxBackend 在 Windows 环境下不可用（tmux 未安装）
+- Backend 抽象层为多环境部署提供统一接口
+
+---
+
 ## 2026-04-13 - Task: T016 实现 AgentPool 实例池
 
 ### What was done:

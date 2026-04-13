@@ -265,7 +265,7 @@
       "description": "定义 AgentBackend 接口，实现 InProcessBackend 和 TmuxBackend，实现 BackendSelector 自动选择策略",
       "architecture_ref": "§7 Backend 抽象层",
       "depends_on": ["T016"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "AgentBackend 接口定义（isAvailable/spawn/sendMessage/terminate/getOutput/isActive）",
         "InProcessBackend 实现完整",

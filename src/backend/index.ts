@@ -1,1 +1,5 @@
 export type { AgentBackend, AgentSpawnConfig, AgentMessage } from './types.js'
+export { InProcessBackend, createInProcessBackend } from './inprocess.js'
+export { TmuxBackend, createTmuxBackend } from './tmux.js'
+export { BackendSelector, createBackendSelector } from './selector.js'
+export type { BackendSelectorConfig } from './selector.js'
