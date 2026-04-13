@@ -345,7 +345,7 @@
       "description": "升级 Scheduler 整合 AgentPool、LoadBalancer、Coordinator，支持多 Agent 并行调度",
       "architecture_ref": "§6.1 调度器架构",
       "depends_on": ["T020", "T021"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Scheduler 整合 AgentPool + LoadBalancer + Coordinator",
         "多 Agent 并行执行任务",

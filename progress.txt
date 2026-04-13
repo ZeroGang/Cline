@@ -2,6 +2,31 @@
 
 ---
 
+## 2026-04-13 - Task: T022 升级 Scheduler 支持多 Agent 调度
+
+### What was done:
+- 实现 MultiAgentScheduler 类，整合 AgentPool、LoadBalancer、Coordinator
+- 实现 initialize() 方法，初始化 Agent 池和协调器
+- 实现 submitTask() 和 submitCompoundTask() 方法，支持普通任务和复合任务提交
+- 实现 runLoop() 方法，使用 LoadBalancer 进行任务分配
+- 实现 executeTaskOnAgent() 方法，在指定 Agent 上执行任务
+- 支持动态切换负载均衡策略（round-robin/least-loaded/priority-based）
+- 支持任务取消和事件监听
+- 实现 Agent 任务计数跟踪
+
+### Testing:
+- 创建 tests/scheduler/multi-agent-scheduler.test.ts 单元测试
+- 测试覆盖：初始化、任务提交、任务状态查询、任务取消、负载均衡策略切换
+- 运行 `npx vitest run tests/scheduler/multi-agent-scheduler.test.ts` 全部 17 个测试通过
+
+### Notes:
+- MultiAgentScheduler 使用 AgentPool 管理 Agent 实例
+- LoadBalancer 根据 Agent 负载情况选择最优 Agent
+- Coordinator 用于任务分解和结果聚合
+- 支持通过 setLoadBalanceStrategy() 动态切换负载均衡策略
+
+---
+
 ## 2026-04-13 - Task: T021 实现多 Agent 协调器
 
 ### What was done:
