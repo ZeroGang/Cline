@@ -594,7 +594,7 @@
       "description": "实现 Plugin 接口、PluginManager 生命周期管理、插件提供的工具/命令/策略/导出器集成",
       "architecture_ref": "§22 插件系统",
       "depends_on": ["T004", "T020"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Plugin 接口定义（name/version/onLoad/onUnload/tools/commands/strategies/exporters）",
         "PluginManager 支持 load/unload",

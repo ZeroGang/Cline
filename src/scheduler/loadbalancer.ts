@@ -130,8 +130,12 @@ export class PriorityBasedStrategy implements LoadBalanceStrategy {
   }
 }
 
+export interface LoadBalancingStrategy extends LoadBalanceStrategy {
+  selectAgent?(agents: AgentInfo[]): AgentId | null
+}
+
 export interface LoadBalancerConfig {
-  strategy: 'round-robin' | 'least-loaded' | 'priority-based'
+  strategy: 'round-robin' | 'least-loaded' | 'priority-based' | string
 }
 
 const DEFAULT_CONFIG: LoadBalancerConfig = {
@@ -139,15 +143,21 @@ const DEFAULT_CONFIG: LoadBalancerConfig = {
 }
 
 export class LoadBalancer {
-  private strategy: LoadBalanceStrategy & { selectAgent?: (agents: AgentInfo[]) => AgentId | null }
+  private strategy: LoadBalancingStrategy
   private config: LoadBalancerConfig
+  private customStrategies: Map<string, LoadBalancingStrategy> = new Map()
 
   constructor(config: Partial<LoadBalancerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config }
     this.strategy = this.createStrategy(this.config.strategy)
   }
 
-  private createStrategy(name: string): LoadBalanceStrategy & { selectAgent?: (agents: AgentInfo[]) => AgentId | null } {
+  private createStrategy(name: string): LoadBalancingStrategy {
+    const customStrategy = this.customStrategies.get(name)
+    if (customStrategy) {
+      return customStrategy
+    }
+
     switch (name) {
       case 'round-robin':
         return new RoundRobinStrategy()
@@ -158,6 +168,21 @@ export class LoadBalancer {
       default:
         return new LeastLoadedStrategy()
     }
+  }
+
+  registerStrategy(strategy: LoadBalancingStrategy): void {
+    this.customStrategies.set(strategy.name, strategy)
+  }
+
+  unregisterStrategy(name: string): boolean {
+    return this.customStrategies.delete(name)
+  }
+
+  getStrategy(name: string): LoadBalancingStrategy | undefined {
+    if (name === this.strategy.name) {
+      return this.strategy
+    }
+    return this.customStrategies.get(name)
   }
 
   selectTask(tasks: Task[], agents: AgentInfo[]): Task | null {

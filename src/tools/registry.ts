@@ -43,6 +43,10 @@ export class ToolRegistry {
     return this.tools.delete(name)
   }
 
+  unregister(name: string): boolean {
+    return this.remove(name)
+  }
+
   clear(): void {
     this.tools.clear()
   }

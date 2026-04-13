@@ -2,6 +2,31 @@
 
 ---
 
+## 2026-04-13 - Task: T037 实现插件系统
+
+### What was done:
+- 实现 Plugin 接口，定义 name/version/description/tools/commands/strategies/exporters
+- 实现 PluginManager 类，支持 load/unload 生命周期管理
+- 实现 onLoad/onUnload 钩子函数
+- 插件工具自动注册到 ToolRegistry
+- 插件策略自动注册到 LoadBalancer
+- 插件导出器自动注册到 MetricsCollector
+- 支持最大插件数限制
+- 支持命令执行功能
+
+### Testing:
+- 创建 tests/plugins/manager.test.ts 单元测试
+- 测试覆盖：插件加载/卸载、工具注册/注销、策略注册/注销、命令执行
+- 运行 `npx vitest run tests/plugins/manager.test.ts` 全部 20 个测试通过
+
+### Notes:
+- PluginManager 支持依赖注入，可延迟设置 ToolRegistry/LoadBalancer/MetricsCollector
+- 插件卸载时自动清理注册的工具和策略
+- 为 ToolRegistry 添加了 unregister 方法
+- 为 LoadBalancer 添加了 registerStrategy/unregisterStrategy/getStrategy 方法
+
+---
+
 ## 2026-04-13 - Task: T036 实现 MCP 集成
 
 ### What was done:
