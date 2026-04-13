@@ -42,3 +42,13 @@ export {
 } from './loop.js'
 export type { AgentLoopState, AgentLoopConfig } from './loop.js'
 export { AgentInstanceImpl, createAgentInstance } from './instance.js'
+export { 
+  SubagentExecutor, 
+  createSubagentExecutor,
+  createChildAbortController,
+  createSubagentContext
+} from './subagent.js'
+export type { 
+  SubagentConfig, 
+  SubagentExecutionResult 
+} from './subagent.js'

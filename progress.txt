@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-04-13 - Task: T023 实现子 Agent 调度
+
+### What was done:
+- 实现 createChildAbortController() 函数，支持级联中断
+- 实现 createSubagentContext() 函数，创建隔离的子 Agent 上下文
+- 实现 SubagentExecutor 类，支持同步和异步执行子 Agent
+- 实现 executeSync() 方法，同步执行并等待子 Agent 完成
+- 实现 executeAsync() 方法，异步执行并立即返回 taskId
+- 实现 interrupt() 和 interruptAll() 方法，支持中断子 Agent
+- 实现结果存储和查询功能
+
+### Testing:
+- 创建 tests/agent/subagent.test.ts 单元测试
+- 测试覆盖：级联中断、上下文隔离、同步执行、异步执行、中断、结果管理
+- 运行 `npx vitest run tests/agent/subagent.test.ts` 全部 17 个测试通过
+
+### Notes:
+- 子 Agent 上下文与父 Agent 上下文完全隔离
+- AbortController 级联中断确保父 Agent 中断时子 Agent 也中断
+- 异步执行适用于后台任务，同步执行适用于需要等待结果的场景
+
+---
+
 ## 2026-04-13 - Task: T022 升级 Scheduler 支持多 Agent 调度
 
 ### What was done:

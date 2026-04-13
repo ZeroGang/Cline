@@ -361,7 +361,7 @@
       "description": "实现 AgentDefinition 类型定义、子 Agent 上下文隔离（createSubagentContext）、同步/异步执行模式、AbortController 级联中断",
       "architecture_ref": "§12 子 Agent 调度",
       "depends_on": ["T022"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "AgentDefinition 定义（agentType/tools/permissionMode/model/isolation/background/maxTurns）",
         "createSubagentContext() 创建隔离上下文",
