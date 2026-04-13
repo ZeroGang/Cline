@@ -561,7 +561,7 @@
       "description": "编写可观测性集成测试，验证事件总线、指标收集、告警触发、UI 渲染",
       "architecture_ref": "§25 Phase 4",
       "depends_on": ["T034"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "事件总线端到端测试通过",
         "指标收集和导出测试通过",

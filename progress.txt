@@ -2,6 +2,40 @@
 
 ---
 
+## 2026-04-13 - Task: T035 Phase 4 集成测试
+
+### What was done:
+- 创建 tests/integration/phase4.test.ts 集成测试文件
+- 测试事件总线集成：
+  - 完整任务生命周期追踪
+  - 多 Agent 和任务管理
+  - Agent 错误处理
+- 测试指标和成本追踪集成：
+  - 任务指标和成本联合追踪
+  - 性能检查点追踪
+- 测试告警系统集成：
+  - 高错误率告警触发
+  - 成本阈值告警触发
+  - Agent 卡住告警触发
+- 测试监控服务器集成：
+  - HTTP API 完整性
+  - WebSocket 事件广播
+  - 多客户端处理
+- 测试完整监控管道：
+  - 所有监控组件联合工作
+  - 端到端数据流验证
+
+### Testing:
+- 运行 `npx vitest run tests/integration/phase4.test.ts` 全部 12 个测试通过
+- 测试覆盖：事件总线、指标收集、告警系统、监控服务器、完整管道
+
+### Notes:
+- 集成测试验证了所有 Phase 4 组件的协同工作
+- 测试包括 HTTP 和 WebSocket 两种通信方式
+- 测试覆盖了从事件发射到 UI 更新的完整数据流
+
+---
+
 ## 2026-04-13 - Task: T034 实现监控 UI 层
 
 ### What was done:
