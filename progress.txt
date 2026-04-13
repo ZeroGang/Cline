@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-04-13 - Task: T036 实现 MCP 集成
+
+### What was done:
+- 实现 MCPServer 接口，定义 name/tools/resources
+- 实现 MCPManager 类，支持 connect/disconnect 操作
+- 实现连接重试机制和超时控制
+- 实现 loadMCPTools() 函数，动态加载 MCP 工具到 ToolRegistry
+- 实现 waitForMcpServers() 函数，等待依赖 MCP 服务器
+- 支持最大连接数限制
+- 支持连接状态追踪
+
+### Testing:
+- 创建 tests/mcp/manager.test.ts 单元测试
+- 测试覆盖：连接管理、断开连接、工具调用、工具加载、等待服务器
+- 运行 `npx vitest run tests/mcp/manager.test.ts` 全部 16 个测试通过
+
+### Notes:
+- MCPManager 支持自动重试连接
+- 支持连接超时控制
+- MCP 工具以 `mcp_{serverName}_{toolName}` 格式注册
+- 连接失败时抛出 MCPConnectionError，支持优雅降级
+
+---
+
 ## 2026-04-13 - Task: T035 Phase 4 集成测试
 
 ### What was done:

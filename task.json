@@ -577,7 +577,7 @@
       "description": "实现 MCPServer 接口、MCPManager 连接管理、MCP 工具动态加载、MCP 依赖声明与等待",
       "architecture_ref": "§21 MCP 集成",
       "depends_on": ["T004"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "MCPServer 接口定义（name/tools/resources）",
         "MCPManager 支持 connect/disconnect",
