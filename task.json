@@ -644,7 +644,7 @@
       "description": "编写扩展性集成测试，验证 MCP/插件/Docker Backend/API 接口，执行全系统端到端验收测试",
       "architecture_ref": "§25 Phase 5",
       "depends_on": ["T036", "T037", "T038", "T039"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "MCP 工具集成测试通过",
         "插件加载/卸载测试通过",

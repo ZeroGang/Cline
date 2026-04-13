@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-04-13 - Task: T040 Phase 5 集成测试与全系统验收
+
+### What was done:
+- 创建 Phase 5 集成测试文件 tests/integration/phase5.test.ts
+- MCP 集成测试：工具加载、多服务器管理
+- 插件集成测试：加载/卸载、工具注册、命令执行
+- Docker Backend 集成测试：创建实例、检查可用性
+- API 集成测试：任务 API、Agent API、调度器 API、OpenAPI 文档
+- 全系统集成测试：验证所有组件协同工作
+
+### Testing:
+- 运行 `npx vitest run tests/integration/phase5.test.ts` 全部 12 个测试通过
+- 验证 MCP 工具集成到 ToolRegistry
+- 验证插件工具和策略自动注册
+- 验证 API 端点正确处理请求
+- 验证 OpenAPI 文档生成
+
+### Notes:
+- 所有 Phase 5 任务已完成
+- 系统支持 MCP 工具集成、插件扩展、Docker 后端、REST API
+- 全系统端到端验收测试通过
+
+---
+
 ## 2026-04-13 - Task: T039 实现 REST API
 
 ### What was done:
