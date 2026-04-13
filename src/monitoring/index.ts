@@ -18,3 +18,20 @@ export {
   type RecentEvent,
   type AgentMonitorConfig
 } from './monitor.js'
+
+export { 
+  MetricsCollector,
+  CostTracker,
+  PerformanceTracker,
+  metricsCollector,
+  costTracker,
+  performanceTracker,
+  type MetricValue,
+  type Counter,
+  type Gauge,
+  type Histogram,
+  type Metrics,
+  type CostEntry,
+  type ModelPricing,
+  type PerformanceCheckpoint
+} from './metrics.js'

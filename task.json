@@ -511,7 +511,7 @@
       "description": "实现 Metrics 接口（Counter/Gauge/Histogram）、MetricsCollector、CostTracker、TelemetryClient、性能检查点",
       "architecture_ref": "§19 遥测与性能分析",
       "depends_on": ["T031"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "Metrics 接口定义（tasks/agents/tokens/cost/queue 指标）",
         "MetricsCollector 记录任务/Token/成本指标",

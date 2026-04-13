@@ -2,6 +2,30 @@
 
 ---
 
+## 2026-04-13 - Task: T032 实现指标收集与遥测系统
+
+### What was done:
+- 实现 MetricsCollector 类，支持 Counter、Gauge、Histogram 指标类型
+- 实现 Counter 接口，支持递增和重置
+- 实现 Gauge 接口，支持设置、递增、递减
+- 实现 Histogram 接口，支持观察值和桶计数
+- 实现 CostTracker 类，追踪模型使用成本
+- 实现 PerformanceTracker 类，追踪性能检查点
+- 支持指标导出和标签
+
+### Testing:
+- 创建 tests/monitoring/metrics.test.ts 单元测试
+- 测试覆盖：Counter、Gauge、Histogram、CostTracker、PerformanceTracker
+- 运行 `npx vitest run tests/monitoring/metrics.test.ts` 全部 23 个测试通过
+
+### Notes:
+- MetricsCollector 支持 Prometheus 风格的指标
+- CostTracker 支持多模型定价配置
+- PerformanceTracker 支持检查点开始/结束和元数据
+- 支持指标标签用于多维度分析
+
+---
+
 ## 2026-04-13 - Task: T031 实现事件总线与实时状态追踪
 
 ### What was done:
