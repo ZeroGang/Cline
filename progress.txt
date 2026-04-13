@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-04-13 - Task: T028 实现 Hook 系统
+
+### What was done:
+- 实现 HookSystem 类，支持钩子系统管理
+- 实现 HookPoint 类型，定义钩子点（PreToolUse、PostToolUse、OnError、OnAbort 等）
+- 实现 registerHook() 方法，注册钩子
+- 实现 unregisterHook() 方法，注销钩子
+- 实现 executeHooks() 方法，执行钩子链
+- 支持 continue/skip/modify/abort 四种结果
+- 支持优先级排序和超时控制
+- 提供 commonHooks 工厂函数（logging、validation、errorReporting、inputTransformation）
+
+### Testing:
+- 创建 tests/hooks/hook-system.test.ts 单元测试
+- 测试覆盖：钩子注册、注销、启用/禁用、执行、优先级、超时、错误处理、常用钩子
+- 运行 `npx vitest run tests/hooks/hook-system.test.ts` 全部 29 个测试通过
+
+### Notes:
+- Hook 系统支持在关键执行点插入自定义逻辑
+- 支持多种钩子点：PreToolUse、PostToolUse、OnError、OnAbort、PreQuery、PostQuery 等
+- 支持优先级排序，低优先级先执行
+- 支持超时控制和错误处理
+- 提供常用钩子工厂函数，方便快速创建钩子
+
+---
+
 ## 2026-04-13 - Task: T027 实现 Plan Mode
 
 ### What was done:

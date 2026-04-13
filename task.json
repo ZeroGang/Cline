@@ -427,7 +427,7 @@
       "description": "实现 EnterPlanModeTool 和 ExitPlanModeTool，通过权限模式切换强制分离思考（只读）和行动（读写）阶段",
       "architecture_ref": "§11 Plan Mode",
       "depends_on": ["T008", "T005"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "EnterPlanModeTool 切换到 plan 模式",
         "Plan Mode 下只允许只读工具",
@@ -444,7 +444,7 @@
       "description": "实现 HookType 定义（PreToolUse/PostToolUse/Stop/Notification/PreCommit）、HookConfig、HookExecutor，集成到工具执行流程",
       "architecture_ref": "§20 Hook 系统",
       "depends_on": ["T015"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "HookType 五种类型定义",
         "HookConfig 接口（type/command/timeout/matchers）",
