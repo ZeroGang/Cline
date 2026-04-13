@@ -296,7 +296,7 @@
       "description": "扩展 TaskQueue 支持依赖图，实现等待队列和依赖满足后自动入队，实现 DependencyGraph",
       "architecture_ref": "§6.2 任务队列设计",
       "depends_on": ["T018"],
-      "status": "pending",
+      "status": "completed",
       "acceptance_criteria": [
         "DependencyGraph 检测循环依赖",
         "依赖未满足的任务进入等待队列",
