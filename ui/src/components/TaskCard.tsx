@@ -81,7 +81,6 @@ export function TaskCard({
           <label className="office-task-assign-label" htmlFor={`assign-${task.id}`}>
             <span>{t('officeAssignAgent')}</span>
           </label>
-          <p className="meta office-task-assign-hint">{t('officeAssignHint')}</p>
           <select
             id={`assign-${task.id}`}
             className="filter-select office-task-select"
@@ -95,6 +94,15 @@ export function TaskCard({
               </option>
             ))}
           </select>
+          {task.assignAgent ? (
+            <button
+              type="button"
+              className="btn btn-sm btn-accent office-task-start office-task-noselect"
+              onClick={() => onAction('start')}
+            >
+              {t('officeStartTask')}
+            </button>
+          ) : null}
         </div>
       ) : null}
     </article>

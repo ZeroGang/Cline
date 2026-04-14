@@ -7,6 +7,7 @@ export type NewAgentFormValues = {
   displayName: string
   avatar: string
   personalityPrompt: string
+  projectRoot: string
 }
 
 export function NewAgentModal({
@@ -43,10 +44,12 @@ export function NewAgentModal({
     const personalityPrompt = String(fd.get('personalityPrompt') ?? '').trim()
     const fromCustom = customAvatar.trim()
     const resolvedAvatar = fromCustom || avatar.trim()
+    const projectRoot = String(fd.get('projectRoot') ?? '').trim()
     await onSubmit({
       displayName,
       avatar: resolvedAvatar,
       personalityPrompt,
+      projectRoot,
     })
   }
 
@@ -74,6 +77,20 @@ export function NewAgentModal({
           </button>
         </div>
         <form id={`${formId}-form`} className="modal-body modal-body--tight" onSubmit={handleSubmit}>
+          <div className="modal-field">
+            <label className="filter-group office-modal-field" htmlFor={`${formId}-project`}>
+              <span className="modal-field-label">{t('modalAgentProjectRoot')}</span>
+            </label>
+            <input
+              id={`${formId}-project`}
+              name="projectRoot"
+              type="text"
+              className="office-input"
+              maxLength={2048}
+              autoComplete="off"
+              placeholder={t('modalAgentProjectRootPh')}
+            />
+          </div>
           <div className="modal-field">
             <label className="filter-group office-modal-field" htmlFor={`${formId}-name`}>
               <span className="modal-field-label">{t('modalAgentName')}</span>

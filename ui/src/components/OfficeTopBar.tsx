@@ -7,11 +7,15 @@ export function OfficeTopBar({
   onNewTask,
   onRefresh,
   onSpawnAgent,
+  detailPanelOpen,
+  onOpenDetailPanel,
 }: {
   lastUp: string
   onNewTask: () => void
   onRefresh: () => void
   onSpawnAgent: () => void
+  detailPanelOpen: boolean
+  onOpenDetailPanel: () => void
 }) {
   const { t, lang, setLang } = useI18n()
   const { theme, toggleTheme } = useTheme()
@@ -34,6 +38,11 @@ export function OfficeTopBar({
           <option>Kanvas Shell</option>
           <option>Demo / UI</option>
         </select>
+        {!detailPanelOpen ? (
+          <button type="button" className="btn btn-ghost office-head-btn" onClick={onOpenDetailPanel}>
+            <i className="ph ph-sidebar-simple" /> <span>{t('officeOpenDetail')}</span>
+          </button>
+        ) : null}
         <button type="button" className="btn btn-accent office-head-btn" onClick={onSpawnAgent}>
           <i className="ph ph-user-plus" /> <span>{t('officeNewAgent')}</span>
         </button>

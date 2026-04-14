@@ -24,6 +24,8 @@ export type SpawnAgentPayload = {
   displayName?: string
   avatar?: string
   personalityPrompt?: string
+  /** 目标项目目录（可选）；留空则使用服务端 CLINE_PROJECT_ROOT / serve 工作目录 */
+  projectRoot?: string
 }
 
 /** 在未满员时新增一名 Agent（受服务端 maxAgents 限制） */

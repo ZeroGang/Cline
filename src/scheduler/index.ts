@@ -1,4 +1,14 @@
-export type { Task, TaskQueueConfig, SchedulerConfig, AgentMetrics, AgentEvent, SchedulerEvent, LoadBalanceStrategy, AgentPoolConfig } from './types.js'
+export type {
+  Task,
+  TaskQueueConfig,
+  SchedulerConfig,
+  AgentMetrics,
+  AgentEvent,
+  SchedulerEvent,
+  LoadBalanceStrategy,
+  AgentPoolConfig,
+  AgentStartupProfile,
+} from './types.js'
 export { TaskQueue, createTaskQueue, createTask } from './queue.js'
 export { Scheduler, createScheduler } from './scheduler.js'
 export type { SchedulerConfig as SchedulerConfigType } from './scheduler.js'

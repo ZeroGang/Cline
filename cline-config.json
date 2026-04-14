@@ -1,0 +1,22 @@
+{
+  "_comment": "serve.agents 非空时按条预载 Agent，且 minAgents 自动等于 min(agents.length, maxAgents)，可省略 minAgents；无 agents 时 minAgents 默认 0。每条不可配置 id，由服务端分配为 agent-{会话端口}。",
+  "serve": {
+    "maxAgents": 16,
+    "port": 8080,
+    "host": "localhost",
+    "mode": "default",
+    "requireAssignAgentBeforeRun": true,
+    "spawnClaudeOnNewAgent": true,
+    "agents": [
+      {
+        "displayName": "代码审查",
+        "systemPrompt": "你是专注代码审查的助手，语气简洁，优先指出风险与可测性。"
+      },
+      {
+        "displayName": "文档笔",
+        "avatar": "📝",
+        "systemPrompt": "你负责把技术方案写成清晰的中文文档，避免空话。"
+      }
+    ]
+  }
+}

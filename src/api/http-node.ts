@@ -1,5 +1,6 @@
 import http from 'node:http'
 import { URL } from 'node:url'
+import { CLINE_CONFIG_DEFAULT_FILENAME } from '../config/cline-config.js'
 import type { ApiRequest, ApiResponse, ApiServer } from './server.js'
 
 function applyCors(res: http.ServerResponse): void {
@@ -83,6 +84,18 @@ export function createHttpServerForApi(api: ApiServer): http.Server {
   })
 }
 
+function formatListenError(err: NodeJS.ErrnoException, port: number, host: string): Error {
+  if (err.code === 'EADDRINUSE') {
+    const hint =
+      process.platform === 'win32'
+        ? `查看占用: netstat -ano | findstr :${port}`
+        : `查看占用: lsof -i :${port} 或 ss -tlnp | grep ${port}`
+    const msg = `端口 ${port} 已被占用（${host}）。请先结束占用该端口的进程，或换端口启动，例如：cline serve -p 8081，或在 ${CLINE_CONFIG_DEFAULT_FILENAME} 的 serve.port 中修改。${hint}`
+    return Object.assign(new Error(msg), { cause: err })
+  }
+  return err
+}
+
 export function listenApiServer(
   api: ApiServer,
   port: number,
@@ -90,7 +103,13 @@ export function listenApiServer(
 ): Promise<http.Server> {
   const httpServer = createHttpServerForApi(api)
   return new Promise((resolve, reject) => {
-    httpServer.listen(port, host, () => resolve(httpServer))
-    httpServer.on('error', reject)
+    const onEarlyError = (err: NodeJS.ErrnoException) => {
+      reject(formatListenError(err, port, host))
+    }
+    httpServer.on('error', onEarlyError)
+    httpServer.listen(port, host, () => {
+      httpServer.removeListener('error', onEarlyError)
+      resolve(httpServer)
+    })
   })
 }

@@ -1,8 +1,13 @@
 import type { AgentId } from '../types.js'
 import { AgentInstanceImpl } from '../agent/instance.js'
+import { createAgentContext } from '../agent/context.js'
 import type { AgentPoolConfig } from './types.js'
 import type { QueryDeps, AgentDefinition } from '../agent/types.js'
+import { ToolRegistry } from '../tools/registry.js'
+import { Store } from '../infrastructure/state/store.js'
+import { DEFAULT_APP_STATE } from '../infrastructure/state/index.js'
 import { Logger } from '../infrastructure/logging/logger.js'
+import { pickClaudeSessionPort } from '../infrastructure/net/pick-claude-session-port.js'
 
 interface PooledAgent {
   instance: AgentInstanceImpl
@@ -18,6 +23,8 @@ export class AgentPool {
   private shrinkTimer: NodeJS.Timeout | null = null
   private initialized = false
   private agentDefinition: AgentDefinition
+  /** 收缩池大小时不得低于该值（来自 minAgents 或 initialAgentProfiles 条数） */
+  private effectiveMinPoolSize = 0
 
   constructor(config: AgentPoolConfig, deps: QueryDeps, agentDefinition?: AgentDefinition) {
     this.config = config
@@ -37,13 +44,34 @@ export class AgentPool {
       return
     }
 
+    const profiles = this.config.initialAgentProfiles
+
     this.logger.info('Initializing AgentPool', {
       minAgents: this.config.minAgents,
-      maxAgents: this.config.maxAgents
+      maxAgents: this.config.maxAgents,
+      configuredAgents: profiles?.length ?? 0,
     })
 
-    for (let i = 0; i < this.config.minAgents; i++) {
-      await this.createAgent()
+    if (profiles && profiles.length > 0) {
+      const n = Math.min(profiles.length, this.config.maxAgents)
+      this.effectiveMinPoolSize = n
+      for (let i = 0; i < n; i++) {
+        const e = profiles[i]
+        if (!e) continue
+        const profile: Partial<Pick<AgentDefinition, 'displayName' | 'avatar' | 'systemPrompt'>> = {}
+        const dn = e.displayName?.trim()
+        if (dn) profile.displayName = dn
+        const av = e.avatar?.trim()
+        if (av) profile.avatar = av
+        const sp = e.systemPrompt?.trim()
+        if (sp) profile.systemPrompt = sp
+        await this.createAgent(profile)
+      }
+    } else {
+      this.effectiveMinPoolSize = this.config.minAgents
+      for (let i = 0; i < this.config.minAgents; i++) {
+        await this.createAgent()
+      }
     }
 
     this.startShrinkTimer()
@@ -107,7 +135,7 @@ export class AgentPool {
       inUse: this.getInUseCount()
     })
 
-    if (this.pool.size > this.config.minAgents) {
+    if (this.pool.size > this.effectiveMinPoolSize) {
       await this.tryShrink()
     }
   }
@@ -200,21 +228,36 @@ export class AgentPool {
     return this.createAgent(profile)
   }
 
-  private async createAgent(
-    profile?: Partial<Pick<AgentDefinition, 'displayName' | 'avatar' | 'systemPrompt'>>
-  ): Promise<AgentId> {
-    const agentId = `agent-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` as AgentId
+  /** Agent ID 固定为 `agent-{为本会话选取的端口}`，与拉起 Claude Code 时传入的端口一致，不可在配置中覆盖。 */
+  private async allocateAgentPortId(): Promise<AgentId> {
+    for (let attempt = 0; attempt < 48; attempt++) {
+      const port = await pickClaudeSessionPort()
+      const agentId = `agent-${port}` as AgentId
+      if (!this.pool.has(agentId)) {
+        return agentId
+      }
+      this.logger.debug('agent id 端口冲突，重选', { attempt, port })
+    }
+    throw new Error('无法为 Agent 分配唯一端口 ID（请稍后重试）')
+  }
+
+  private async createAgent(profile?: Partial<Pick<AgentDefinition, 'displayName' | 'avatar' | 'systemPrompt'>>): Promise<AgentId> {
+    const agentId = await this.allocateAgentPortId()
 
     const definition: AgentDefinition = profile
       ? { ...this.agentDefinition, ...profile }
       : this.agentDefinition
 
-    const instance = new AgentInstanceImpl(
-      agentId,
-      definition,
-      {} as any,
-      this.deps
-    )
+    const tools = new ToolRegistry()
+    const store = new Store(DEFAULT_APP_STATE)
+    const context = createAgentContext({
+      tools,
+      permissionMode: definition.permissionMode,
+      store,
+      sessionId: agentId,
+    })
+
+    const instance = new AgentInstanceImpl(agentId, definition, context, this.deps)
 
     this.pool.set(agentId, {
       instance,
@@ -237,7 +280,7 @@ export class AgentPool {
   }
 
   private async tryShrink(): Promise<void> {
-    if (this.pool.size <= this.config.minAgents) {
+    if (this.pool.size <= this.effectiveMinPoolSize) {
       return
     }
 
@@ -248,7 +291,7 @@ export class AgentPool {
       if (
         !agent.inUse &&
         now - agent.lastUsed > idleThreshold &&
-        this.pool.size > this.config.minAgents
+        this.pool.size > this.effectiveMinPoolSize
       ) {
         await this.terminate(agentId, 'idle_timeout')
       }

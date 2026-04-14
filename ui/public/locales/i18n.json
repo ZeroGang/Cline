@@ -59,6 +59,42 @@
     "cn": "任务详情",
     "en": "Task detail"
   },
+  "officeDetailPickOne": {
+    "cn": "点击看板中的任务卡片，将打开右侧栏查看负责 Agent 的显示名称。",
+    "en": "Click a task card to open the side panel and see the assigned agent display name."
+  },
+  "officeDetailEmptyTitle": {
+    "cn": "未选择任务",
+    "en": "No task selected"
+  },
+  "officeTaskOverview": {
+    "cn": "概览",
+    "en": "Overview"
+  },
+  "officeOvState": {
+    "cn": "状态",
+    "en": "state"
+  },
+  "officeOvProject": {
+    "cn": "项目",
+    "en": "project"
+  },
+  "officeOvCreated": {
+    "cn": "创建时间",
+    "en": "Created"
+  },
+  "officeOvUpdated": {
+    "cn": "更新时间",
+    "en": "Updated"
+  },
+  "officeCloseDetail": {
+    "cn": "关闭任务详情",
+    "en": "Hide task detail"
+  },
+  "officeOpenDetail": {
+    "cn": "显示任务详情",
+    "en": "Show task detail"
+  },
   "officeColBacklog": {
     "cn": "待办",
     "en": "Backlog"
@@ -74,10 +110,6 @@
   "officeColDone": {
     "cn": "已完成",
     "en": "Complete"
-  },
-  "officeOverview": {
-    "cn": "概览",
-    "en": "Overview"
   },
   "officeConv": {
     "cn": "对话",
@@ -99,6 +131,26 @@
     "cn": "暂无对话记录。",
     "en": "No transcript entries yet."
   },
+  "officeActUser": {
+    "cn": "用户",
+    "en": "User"
+  },
+  "officeActAssistant": {
+    "cn": "Agent",
+    "en": "Agent"
+  },
+  "officeActTool": {
+    "cn": "工具",
+    "en": "Tool"
+  },
+  "officeActToolResult": {
+    "cn": "结果",
+    "en": "Result"
+  },
+  "officeActSystem": {
+    "cn": "系统",
+    "en": "System"
+  },
   "officeNoEvents": {
     "cn": "暂无系统事件。",
     "en": "No system events yet."
@@ -107,9 +159,9 @@
     "cn": "分配 Agent",
     "en": "Assign agent"
   },
-  "officeAssignHint": {
-    "cn": "选择池内 Agent 后自动开始执行",
-    "en": "Pick a pool agent to start execution"
+  "officeStartTask": {
+    "cn": "开始任务",
+    "en": "Start task"
   },
   "officePickNone": {
     "cn": "无",
@@ -134,6 +186,14 @@
   "modalNewAgentTitle": {
     "cn": "新建 Agent",
     "en": "New agent"
+  },
+  "modalAgentProjectRoot": {
+    "cn": "目标项目目录",
+    "en": "Project folder"
+  },
+  "modalAgentProjectRootPh": {
+    "cn": "留空则用服务端默认目录；可填绝对路径（例：D:/work/my-app）",
+    "en": "Leave empty for server default; absolute path (e.g. /home/me/my-app)"
   },
   "modalAgentName": {
     "cn": "显示名称",

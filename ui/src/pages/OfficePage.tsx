@@ -5,6 +5,7 @@ import { NewAgentModal } from '@/components/NewAgentModal'
 import { TaskCard } from '@/components/TaskCard'
 import { useI18n } from '@/context/I18nContext'
 import { cancelTask, createTask, fetchAgents, fetchTasks, spawnAgent, updateTask, type ApiAgent, type ApiTask } from '@/lib/api'
+import { parseActivityTranscript, type ActivityKind } from '@/lib/activityTranscript'
 import { taskToBoard, type BoardTask } from '@/lib/boardMap'
 import { notyf } from '@/lib/toast'
 
@@ -38,6 +39,23 @@ function isAvatarHttpUrl(s: string): boolean {
   return /^https?:\/\//i.test(s.trim())
 }
 
+/** 任务信息栏：仅展示池内 Agent 的显示名称；未分配、无显示名或不在列表中均为「—」。 */
+function taskInfoAgentDisplayName(task: BoardTask, agents: ApiAgent[]): string {
+  const aid = task.assignAgent?.trim()
+  if (!aid) return '—'
+  const a = agents.find((x) => x.id === aid)
+  const name = a?.displayName?.trim()
+  return name || '—'
+}
+
+function activityKindLabel(kind: ActivityKind, t: (k: string) => string): string {
+  if (kind === 'user') return t('officeActUser')
+  if (kind === 'assistant') return t('officeActAssistant')
+  if (kind === 'tool') return t('officeActTool')
+  if (kind === 'tool_result') return t('officeActToolResult')
+  return t('officeActSystem')
+}
+
 export default function OfficePage() {
   const { t, lang } = useI18n()
   const [apiTasks, setApiTasks] = useState<ApiTask[]>([])
@@ -45,6 +63,7 @@ export default function OfficePage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [agentModalOpen, setAgentModalOpen] = useState(false)
+  const [detailPanelOpen, setDetailPanelOpen] = useState(true)
   const [lastUp, setLastUp] = useState('')
 
   const boardTasks = useMemo(() => apiTasks.map(taskToBoard), [apiTasks])
@@ -61,6 +80,11 @@ export default function OfficePage() {
   const selected = useMemo(
     () => boardTasks.find((x) => x.id === selectedId) ?? null,
     [boardTasks, selectedId]
+  )
+
+  const activityLines = useMemo(
+    () => (selected ? parseActivityTranscript(selected.raw.metadata) : []),
+    [selected]
   )
 
   const refresh = useCallback(async () => {
@@ -91,6 +115,15 @@ export default function OfficePage() {
       setSelectedId(null)
     }
   }, [lang, t])
+
+  /** 运行中任务定时拉取，便于 Conversation 展示 Agent 实时输出 */
+  useEffect(() => {
+    if (!selected || selected.raw.status !== 'running') return
+    const tick = window.setInterval(() => {
+      void refresh()
+    }, 2500)
+    return () => window.clearInterval(tick)
+  }, [selected?.id, selected?.raw.status, refresh])
 
   useEffect(() => {
     let cancelled = false
@@ -138,7 +171,7 @@ export default function OfficePage() {
       const task = await createTask(content.trim())
       setModalOpen(false)
       notyf.success(lang === 'zh' ? '任务已创建' : 'Task created')
-      setSelectedId(task.id)
+      selectTaskId(task.id)
       await refresh()
     } catch {
       notyf.error(lang === 'zh' ? '创建失败' : 'Create failed')
@@ -174,12 +207,18 @@ export default function OfficePage() {
     }
   }
 
-  async function handleSpawnAgentSubmit(values: { displayName: string; avatar: string; personalityPrompt: string }) {
+  async function handleSpawnAgentSubmit(values: {
+    displayName: string
+    avatar: string
+    personalityPrompt: string
+    projectRoot: string
+  }) {
     try {
       await spawnAgent({
         displayName: values.displayName,
         avatar: values.avatar || undefined,
         personalityPrompt: values.personalityPrompt || undefined,
+        projectRoot: values.projectRoot.trim() || undefined,
       })
       notyf.success(t('officeSpawnOk'))
       setAgentModalOpen(false)
@@ -192,6 +231,12 @@ export default function OfficePage() {
         notyf.error(lang === 'zh' ? '添加 Agent 失败' : 'Failed to add agent')
       }
     }
+  }
+
+  /** 选中任务并打开右侧详情栏（关闭栏不会清空选中，仅隐藏面板） */
+  function selectTaskId(id: string) {
+    setSelectedId(id)
+    setDetailPanelOpen(true)
   }
 
   function sendDemo() {
@@ -217,9 +262,11 @@ export default function OfficePage() {
               notyf.success(lang === 'zh' ? '已刷新' : 'Refreshed')
             }}
             onSpawnAgent={() => setAgentModalOpen(true)}
+            detailPanelOpen={detailPanelOpen}
+            onOpenDetailPanel={() => setDetailPanelOpen(true)}
           />
 
-          <div className="office-grid">
+          <div className={`office-grid${detailPanelOpen ? '' : ' office-grid--no-detail'}`}>
             <aside className="office-pane office-agents" aria-label="agents">
               <div className="office-pane-head">
                 <span className="sec-title office-pane-title">
@@ -301,7 +348,7 @@ export default function OfficePage() {
                           task={task}
                           agents={apiAgents}
                           selected={task.id === selectedId}
-                          onSelect={() => setSelectedId(task.id)}
+                          onSelect={() => selectTaskId(task.id)}
                           onAction={(act) => void handleAction(task, act)}
                           onAssignChange={(agent) => void handleAssign(task, agent)}
                         />
@@ -312,60 +359,109 @@ export default function OfficePage() {
               </div>
             </section>
 
+            {detailPanelOpen ? (
             <aside className="office-pane office-detail" aria-label="detail">
               <div className="office-detail-head">
-                <div className="office-detail-titlewrap">
-                  <h2 className="office-detail-h" id="officeDetailTitle">
-                    {selected?.title ?? t('officeNoTasksDetail')}
-                  </h2>
-                  <p className="meta office-detail-hint">{t('officeDetail')}</p>
+                <div className="office-detail-head-top">
+                  <div className="office-detail-head-main">
+                    <div className="office-detail-titlewrap">
+                      <h2 className="office-detail-h" id="officeDetailTitle">
+                        {selected ? selected.title : apiTasks.length === 0 ? t('officeNoTasksDetail') : t('officeDetailEmptyTitle')}
+                      </h2>
+                      <p
+                        className={
+                          selected
+                            ? 'meta office-detail-hint office-detail-hint--agent'
+                            : 'meta office-detail-hint'
+                        }
+                      >
+                        {selected
+                          ? taskInfoAgentDisplayName(selected, apiAgents)
+                          : apiTasks.length === 0
+                            ? t('officeDetail')
+                            : t('officeDetailPickOne')}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-ghost office-detail-close office-task-noselect"
+                    title={t('officeCloseDetail')}
+                    aria-label={t('officeCloseDetail')}
+                    onClick={() => {
+                      /* 仅收起侧栏，保留看板上的任务选中态 */
+                      setDetailPanelOpen(false)
+                    }}
+                  >
+                    <i className="ph ph-x" />
+                  </button>
                 </div>
+                {selected ? (
+                  <div className="office-detail-overview-card" id="officeDetailOverview">
+                    <div className="office-detail-overview-cap">{t('officeTaskOverview')}</div>
+                    <dl className="office-detail-overview-kv">
+                      <div>
+                        <dt>{t('officeOvState')}</dt>
+                        <dd>{selected.raw.status}</dd>
+                      </div>
+                      <div>
+                        <dt>{t('officeOvProject')}</dt>
+                        <dd>{selected.project}</dd>
+                      </div>
+                      <div>
+                        <dt>{t('officeOvCreated')}</dt>
+                        <dd className="mono">
+                          {new Date(selected.raw.createdAt).toLocaleString(lang === 'zh' ? 'zh-CN' : 'en-US', {
+                            dateStyle: 'short',
+                            timeStyle: 'medium',
+                          })}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{t('officeOvUpdated')}</dt>
+                        <dd className="mono">
+                          {new Date(
+                            selected.raw.updatedAt ??
+                              selected.raw.completedAt ??
+                              selected.raw.startedAt ??
+                              selected.raw.createdAt
+                          ).toLocaleString(lang === 'zh' ? 'zh-CN' : 'en-US', {
+                            dateStyle: 'short',
+                            timeStyle: 'medium',
+                          })}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+                ) : null}
               </div>
               <div className="office-detail-body">
                 <div className="office-detail-block">
-                  <div className="office-detail-h2">{t('officeOverview')}</div>
-                  <dl className="office-kv">
-                    <div>
-                      <dt>Status</dt>
-                      <dd id="officeDetailStatus">{selected?.status ?? '—'}</dd>
-                    </div>
-                    <div>
-                      <dt>Run</dt>
-                      <dd id="officeDetailRun" className="mono">
-                        {selected?.run ?? '—'}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Project</dt>
-                      <dd id="officeDetailProject">{selected?.project ?? '—'}</dd>
-                    </div>
-                    <div>
-                      <dt>Path</dt>
-                      <dd id="officeDetailPath" className="mono">
-                        {selected?.path ?? '—'}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Price</dt>
-                      <dd id="officeDetailPrice">{selected?.price ?? '—'}</dd>
-                    </div>
-                    <div>
-                      <dt>Created</dt>
-                      <dd id="officeDetailCreated" className="mono">
-                        {selected?.created ?? '—'}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Updated</dt>
-                      <dd id="officeDetailUpdated" className="mono">
-                        {selected?.updated ?? '—'}
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
-                <div className="office-detail-block">
                   <div className="office-detail-h2">{t('officeConv')}</div>
-                  <div className="office-placeholder meta">{t('officeNoTranscript')}</div>
+                  {activityLines.length === 0 ? (
+                    <div className="office-placeholder meta">{t('officeNoTranscript')}</div>
+                  ) : (
+                    <div className="office-transcript" role="log" aria-live="polite">
+                      {activityLines.map((line, i) => (
+                        <div
+                          key={`${line.t}-${i}`}
+                          className={`office-transcript-row office-transcript-row--${line.kind}`}
+                        >
+                          <div className="office-transcript-meta">
+                            <span className="office-transcript-kind">{activityKindLabel(line.kind, t)}</span>
+                            <span className="office-transcript-time mono">
+                              {new Date(line.t).toLocaleTimeString(lang === 'zh' ? 'zh-CN' : 'en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                              })}
+                            </span>
+                          </div>
+                          <pre className="office-transcript-text">{line.text}</pre>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="office-detail-block">
                   <div className="office-detail-h2">{t('officeEvents')}</div>
@@ -385,6 +481,7 @@ export default function OfficePage() {
                 </button>
               </div>
             </aside>
+            ) : null}
           </div>
         </div>
       </main>

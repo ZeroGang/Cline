@@ -10,7 +10,7 @@ import type { AgentStatus } from '../monitoring/monitor.js'
 import type { AgentId } from '../types.js'
 import type { AgentInstanceImpl } from '../agent/instance.js'
 import { Logger } from '../infrastructure/logging/logger.js'
-import { trySpawnClaudeCodeSession } from './spawn-claude-code.js'
+import { parseSessionPortFromAgentId, resolveAgentProjectDir, trySpawnClaudeCodeSession } from './spawn-claude-code.js'
 
 function mapPoolAgentToApiStatus(agent: AgentInstanceImpl): AgentStatus {
   const st = agent.status
@@ -38,11 +38,15 @@ export interface SchedulerHttpHostOptions {
   scheduler: Omit<MultiAgentSchedulerConfig, 'agentDefinition'>
   agentDefinition: AgentDefinition
   /**
-   * 通过 API 新建 Agent 时，是否在本机工程目录执行 `claude`（Claude Code CLI）。
+   * 通过 API 新建 Agent 时，是否在目标项目目录打开终端并启动 `claude`（Claude Code CLI）。
    * 默认 `true`；设为 `false` 或 CLI `--skip-claude-spawn` 可关闭。
    */
   spawnClaudeOnNewAgent?: boolean
-  /** Claude Code 工作目录；默认 `process.cwd()`（即当前运行 `serve` 的工程目录） */
+  /**
+   * 新建 Agent 时 Claude Code 的默认工作目录；
+   * 默认取 `CLINE_PROJECT_ROOT` 或 `process.cwd()`（见 `cline serve`）。
+   * API 请求体可传 `projectRoot` 覆盖单次创建。
+   */
   agentProjectRoot?: string
 }
 
@@ -53,6 +57,25 @@ export interface SchedulerHttpHost {
 }
 
 const logger = new Logger({ source: 'SchedulerHttpHost' })
+
+function trySpawnClaudeForAgentInstance(
+  inst: AgentInstanceImpl,
+  cwd: string,
+  source: 'startup' | 'api'
+): void {
+  const sessionPort = parseSessionPortFromAgentId(inst.id)
+  if (sessionPort === undefined) {
+    logger.warn('Agent id 非 agent-{port} 格式，跳过拉起 Claude Code', { id: inst.id, source })
+    return
+  }
+  logger.info('拉起 Claude Code 终端', { agentId: inst.id, sessionPort, cwd, source })
+  trySpawnClaudeCodeSession({
+    cwd,
+    displayName: inst.getDisplayName(),
+    agentId: inst.id,
+    sessionPort,
+  })
+}
 
 /**
  * 启动「多 Agent 调度器 + REST API」一体化进程，对接 `ui/` 与自动化脚本。
@@ -74,6 +97,22 @@ export async function startSchedulerHttpHost(opts: SchedulerHttpHostOptions): Pr
 
   await scheduler.initialize()
 
+  /** 配置里预置的 Agent（serve.agents）只在池初始化时创建，此前不会走 POST /api/agents，这里同样拉起终端 */
+  if (spawnClaudeOnNewAgent) {
+    const existing = scheduler.getAllAgentInstances()
+    if (existing.length > 0) {
+      logger.info('serve 启动后为已有 Agent 拉起 Claude Code（与新建 Agent 行为一致）', { count: existing.length })
+    }
+    const staggerMs = 600
+    existing.forEach((inst, i) => {
+      setTimeout(() => {
+        trySpawnClaudeForAgentInstance(inst, agentProjectRoot, 'startup')
+      }, i * staggerMs)
+    })
+  } else {
+    logger.info('已关闭 spawnClaudeOnNewAgent（--skip-claude-spawn 或配置），不会自动打开终端启动 Claude Code')
+  }
+
   const api = createApiServer({ port: opts.port, host: opts.host })
 
   setupApiRoutes(api, {
@@ -94,14 +133,11 @@ export async function startSchedulerHttpHost(opts: SchedulerHttpHostOptions): Pr
       spawnAgent: async (input) => {
         const id = await scheduler.spawnAgent(input)
         if (!id) return null
-        if (spawnClaudeOnNewAgent) {
-          trySpawnClaudeCodeSession({
-            cwd: agentProjectRoot,
-            displayName: input?.displayName,
-            agentId: id,
-          })
-        }
         const inst = scheduler.getAgentInstance(id)
+        if (spawnClaudeOnNewAgent && inst) {
+          const cwd = resolveAgentProjectDir(input?.projectRoot, agentProjectRoot)
+          trySpawnClaudeForAgentInstance(inst, cwd, 'api')
+        }
         return inst ? mapPoolAgentToApiStatus(inst) : null
       },
     },

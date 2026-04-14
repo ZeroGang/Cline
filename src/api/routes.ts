@@ -16,6 +16,8 @@ export interface SpawnAgentRequestBody {
   displayName?: string
   avatar?: string
   personalityPrompt?: string
+  /** 绝对或相对路径；须为已存在目录，否则回退服务端默认 `agentProjectRoot` */
+  projectRoot?: string
 }
 
 export interface AgentApiDependencies {
@@ -202,11 +204,14 @@ export class AgentApi {
         const avatar = typeof b.avatar === 'string' ? b.avatar.trim().slice(0, 2048) : undefined
         const personalityPrompt =
           typeof b.personalityPrompt === 'string' ? b.personalityPrompt.trim().slice(0, 32000) : undefined
-        if (displayName || avatar || personalityPrompt) {
+        const projectRoot =
+          typeof b.projectRoot === 'string' ? b.projectRoot.trim().slice(0, 2048) : undefined
+        if (displayName || avatar || personalityPrompt || projectRoot) {
           input = {}
           if (displayName) input.displayName = displayName
           if (avatar) input.avatar = avatar
           if (personalityPrompt) input.personalityPrompt = personalityPrompt
+          if (projectRoot) input.projectRoot = projectRoot
         }
       }
       const agent = await this.deps.spawnAgent(input)

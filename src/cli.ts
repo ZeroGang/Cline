@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander'
+import { pickClaudeSessionPort } from './infrastructure/net/pick-claude-session-port.js'
 import { createScheduler } from './scheduler/index.js'
 import type { AgentDefinition } from './agent/types.js'
 import { productionDeps } from './agent/deps.js'
 import { Logger } from './infrastructure/logging/logger.js'
+import { CLINE_CONFIG_DEFAULT_FILENAME, resolveServeOptions } from './config/cline-config.js'
 
 const program = new Command()
 const logger = new Logger({ source: 'CLI' })
@@ -16,48 +18,60 @@ program
 
 program
   .command('serve')
-  .description('启动多 Agent 调度器与 REST API（默认 :8080，供 ui/ Vite 代理）')
-  .option('-p, --port <n>', 'HTTP 端口', '8080')
-  .option('-H, --host <host>', '监听地址', 'localhost')
-  .option('--min-agents <n>', '最小 Agent 数', '2')
-  .option('--max-agents <n>', '最大 Agent 数（新员工上限）', '16')
-  .option('-m, --mode <mode>', '权限模式 (default/plan/auto/bypass)', 'default')
+  .description(
+    `启动多 Agent 调度器与 REST API（供 ui/ Vite 代理）。端口、最小/最大 Agent 数等可从仓库根目录 ${CLINE_CONFIG_DEFAULT_FILENAME} 的 serve 段读取，CLI 参数优先。`
+  )
+  .option('-p, --port <n>', `HTTP 端口（未传则用 ${CLINE_CONFIG_DEFAULT_FILENAME} 或 ${8080}）`)
+  .option('-H, --host <host>', `监听地址（未传则用 ${CLINE_CONFIG_DEFAULT_FILENAME} 或 localhost）`)
+  .option('--min-agents <n>', `最小 Agent 数（未传则用 ${CLINE_CONFIG_DEFAULT_FILENAME}，否则默认 0）`)
+  .option('--max-agents <n>', `最大 Agent 数（未传则用 ${CLINE_CONFIG_DEFAULT_FILENAME} serve.maxAgents，否则 16）`)
+  .option('-m, --mode <mode>', '权限模式 (default/plan/auto/bypass)，未传则从配置文件或 default')
   .option(
     '--skip-claude-spawn',
-    '新建 Agent（看板「新员工」）时不在工程目录拉起本机 Claude Code CLI（claude）'
+    '新建 Agent（看板「新员工」）时不在目标项目目录打开终端并启动本机 Claude Code CLI（claude）'
   )
   .action(
     async (options: {
-      port: string
-      host: string
-      minAgents: string
-      maxAgents: string
-      mode: string
+      port?: string
+      host?: string
+      minAgents?: string
+      maxAgents?: string
+      mode?: string
       skipClaudeSpawn?: boolean
     }) => {
+    const projectRoot = process.env.CLINE_PROJECT_ROOT?.trim() || process.cwd()
+    const resolved = resolveServeOptions(projectRoot, options)
+    if (resolved.configPath) {
+      logger.info(`已加载 ${CLINE_CONFIG_DEFAULT_FILENAME}`, { path: resolved.configPath })
+    }
+    logger.info('serve 生效参数', {
+      port: resolved.port,
+      host: resolved.host,
+      minAgents: resolved.minAgents,
+      maxAgents: resolved.maxAgents,
+    })
     const { startSchedulerHttpHost } = await import('./app/scheduler-http-host.js')
     const definition: AgentDefinition = {
       agentType: 'default',
-      permissionMode: options.mode as AgentDefinition['permissionMode'],
+      permissionMode: resolved.mode as AgentDefinition['permissionMode'],
       isolation: 'shared',
       background: false,
     }
-    const port = Number.parseInt(options.port, 10)
-    const minAgents = Number.parseInt(options.minAgents, 10)
-    const maxAgents = Number.parseInt(options.maxAgents, 10)
     const host = await startSchedulerHttpHost({
-      port,
-      host: options.host,
+      port: resolved.port,
+      host: resolved.host,
       scheduler: {
-        minAgents,
-        maxAgents,
+        minAgents: resolved.minAgents,
+        maxAgents: resolved.maxAgents,
         loadBalanceStrategy: 'least-loaded',
+        requireAssignAgentBeforeRun: resolved.requireAssignAgentBeforeRun,
+        initialAgentProfiles: resolved.initialAgentProfiles,
       },
       agentDefinition: definition,
-      spawnClaudeOnNewAgent: options.skipClaudeSpawn !== true,
-      agentProjectRoot: process.env.CLINE_PROJECT_ROOT?.trim() || process.cwd(),
+      spawnClaudeOnNewAgent: resolved.spawnClaudeOnNewAgent,
+      agentProjectRoot: projectRoot,
     })
-    const url = `http://${options.host}:${port}`
+    const url = `http://${resolved.host}:${resolved.port}`
     logger.info('Scheduler + API ready', { url })
     console.log(`\n  Cline 调度器已启动\n  REST API: ${url}\n  健康检查: ${url}/api/health\n  任务列表: ${url}/api/tasks\n`)
     const shutdown = async () => {
@@ -71,11 +85,12 @@ program
 
 program
   .command('start')
-  .description('仅启动单机调度器（无 HTTP，调试用）')
-  .option('-i, --agent-id <id>', 'Agent ID', 'agent-1')
+  .description('仅启动单机调度器（无 HTTP，调试用）；Agent ID 固定为 agent-{会话端口}，不可配置')
   .option('-m, --mode <mode>', 'Permission mode (default/plan/auto/bypass)', 'default')
   .action(async (options) => {
-    logger.info('Starting CLine scheduler...', { agentId: options.agentId, mode: options.mode })
+    const port = await pickClaudeSessionPort()
+    const agentId = `agent-${port}`
+    logger.info('Starting CLine scheduler...', { agentId, mode: options.mode })
 
     const definition: AgentDefinition = {
       agentType: 'default',
@@ -86,7 +101,7 @@ program
 
     const scheduler = createScheduler(
       {
-        agentId: options.agentId,
+        agentId,
         agentDefinition: definition,
       },
       productionDeps()

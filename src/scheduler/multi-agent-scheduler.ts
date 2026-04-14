@@ -1,4 +1,4 @@
-import type { Task, TaskQueueConfig, AgentEvent } from './types.js'
+import type { Task, TaskQueueConfig, AgentEvent, AgentStartupProfile } from './types.js'
 import type { AgentId, TaskId, TaskPriority, TaskStatus } from '../types.js'
 import type { AgentDefinition, QueryDeps } from '../agent/types.js'
 import type { AgentInstanceImpl } from '../agent/instance.js'
@@ -7,6 +7,11 @@ import { AgentPool, createAgentPool } from './pool.js'
 import { LoadBalancer, createLoadBalancer } from './loadbalancer.js'
 import { Coordinator, createCoordinator } from './coordinator.js'
 import { Logger } from '../infrastructure/logging/logger.js'
+import {
+  appendActivityTranscriptFailure,
+  appendActivityTranscriptFromEvent,
+  seedActivityTranscriptUserPrompt,
+} from './activity-transcript.js'
 
 export interface MultiAgentSchedulerConfig {
   minAgents: number
@@ -19,13 +24,16 @@ export interface MultiAgentSchedulerConfig {
    * 新任务在未分配前会一直保持待办（pending）。
    */
   requireAssignAgentBeforeRun?: boolean
+  /** 启动时按配置创建具名/具人格的 Agent；非空时覆盖 minAgents 的预创建数量 */
+  initialAgentProfiles?: AgentStartupProfile[]
 }
 
-/** POST /api/agents 可选字段，用于新建实例的展示与 system 人格 */
+/** POST /api/agents 可选字段，用于新建实例的展示与 system 人格；`projectRoot` 仅 HTTP 层用于拉起 Claude Code */
 export interface SpawnAgentInput {
   displayName?: string
   avatar?: string
   personalityPrompt?: string
+  projectRoot?: string
 }
 
 interface AgentInfo {
@@ -55,14 +63,20 @@ export class MultiAgentScheduler {
     this.taskQueue = createTaskQueue(config.taskQueueConfig)
     this.logger = new Logger({ source: 'MultiAgentScheduler' })
     this.agentDefinition = config.agentDefinition
+    /** 未传时为 false，仅 HTTP host 通过配置显式传入 true */
     this.requireAssignAgentBeforeRun = config.requireAssignAgentBeforeRun === true
 
-    this.agentPool = createAgentPool({
-      minAgents: config.minAgents,
-      maxAgents: config.maxAgents,
-      maxTurnsPerAgent: this.agentDefinition.maxTurns || 100,
-      agentTimeout: 300000
-    }, deps)
+    this.agentPool = createAgentPool(
+      {
+        minAgents: config.minAgents,
+        maxAgents: config.maxAgents,
+        maxTurnsPerAgent: this.agentDefinition.maxTurns || 100,
+        agentTimeout: 300000,
+        initialAgentProfiles: config.initialAgentProfiles,
+      },
+      deps,
+      this.agentDefinition
+    )
 
     this.loadBalancer = createLoadBalancer({
       strategy: config.loadBalanceStrategy || 'least-loaded'
@@ -436,7 +450,9 @@ export class MultiAgentScheduler {
     this.agentTaskCount.set(agent.id, taskCount + 1)
 
     try {
+      seedActivityTranscriptUserPrompt(task, task.prompt)
       for await (const event of agent.execute(task)) {
+        appendActivityTranscriptFromEvent(task, event)
         this.handleAgentEvent(event, agent.id)
       }
 
@@ -445,6 +461,7 @@ export class MultiAgentScheduler {
       this.logger.info('Task completed', { taskId: task.id, agentId: agent.id })
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
+      appendActivityTranscriptFailure(task, errorMessage)
       this.taskQueue.fail(task.id, errorMessage)
       this.coordinator.collectResult(task.id, agent.id, null, errorMessage)
       this.logger.error('Task failed', {
